@@ -3,11 +3,11 @@ const products = [
   { name: "Choco Rumba", price: 36, type: "A" },
   { name: "Sky Beeze", price: 36, type: "A" },
   { name: "Dark Moon", price: 40, type: "A" },
+  { name: "Mai Tai", price: 40, type: "A" },
   { name: "Mini Wrap de Salmon", price: 35, type: "C" },
   { name: "Langostinos Tempura", price: 36, type: "C" },
   { name: "Bocadillo Tropical", price: 30, type: "C" },
   { name: "Sunset Punch", price: 26, type: "B" },
-  { name: "Mai Tai", price: 40, type: "A" },
   // Oferta especial
   { name: "Pack Poli 🚓", price: 50, type: "OFFER", includes: ["Bocadillo Tropical", "Sunset Punch"] }
 ];
