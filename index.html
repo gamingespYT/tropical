@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tropical Heights - Calculadora</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <header>
+    <img src="https://guaguarp.com/logo.png" alt="Logo Servidor">
+    <img src="https://gamingespyt.github.io/gamingesp/img/Tropical_Heights.png" alt="Logo Tropical Heights">
+    <h1>Calculadora Tropical Heights</h1>
+  </header>
+
+  <main class="layout">
+    <div class="products-container">
+      <h2>Productos</h2>
+      <div id="products"></div>
+    </div>
+
+    <div class="cart-container">
+      <h2>Carrito</h2>
+      <div class="list" id="list">Añade productos para ver el detalle aquí...</div>
+      <div class="total" id="total">Total: 0€</div>
+      <div class="buttons">
+        <button class="copy-btn" onclick="copyList()">📋 Copiar</button>
+        <button class="reset-btn" onclick="resetCart()">🔄 Reset</button>
+      </div>
+    </div>
+  </main>
+
+  <div id="notification" class="notification"></div>
+
+  <script src="index.js"></script>
+</body>
+</html>
