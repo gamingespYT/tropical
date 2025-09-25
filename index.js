@@ -9,7 +9,7 @@ const products = [
   { name: "Sunset Punch", price: 26, type: "B" },
   { name: "Mai Tai", price: 40, type: "A" },
   // Oferta especial
-  { name: "Pack Poli", price: 50, type: "OFFER", includes: ["Bocadillo Tropical", "Sunset Punch"] }
+  { name: "Pack Poli 🚓", price: 50, type: "OFFER", includes: ["Bocadillo Tropical", "Sunset Punch"] }
 ];
 
 const cart = {};
