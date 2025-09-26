@@ -1,15 +1,15 @@
 const products = [
-  { name: "Diva's Secret", price: 40, type: "A" },
-  { name: "Choco Rumba", price: 36, type: "A" },
-  { name: "Sky Beeze", price: 36, type: "A" },
-  { name: "Dark Moon", price: 40, type: "A" },
-  { name: "Mai Tai", price: 40, type: "A" },
-  { name: "Mini Wrap de Salmon", price: 35, type: "C" },
-  { name: "Langostinos Tempura", price: 36, type: "C" },
-  { name: "Bocadillo Tropical", price: 30, type: "C" },
-  { name: "Sunset Punch", price: 26, type: "B" },
+  { name: "Diva's Secret",car: "", price: 40, type: "A" },
+  { name: "Choco Rumba",car: "", price: 36, type: "A" },
+  { name: "Sky Beeze",car: "", price: 36, type: "A" },
+  { name: "Dark Moon",car: "", price: 40, type: "A" },
+  { name: "Mai Tai",car: "", price: 40, type: "A" },
+  { name: "Mini Wrap de Salmon",car: "", price: 35, type: "C" },
+  { name: "Langostinos Tempura",car: "", price: 36, type: "C" },
+  { name: "Bocadillo Tropical",car: "", price: 30, type: "C" },
+  { name: "Sunset Punch",car: "", price: 26, type: "B" },
   // Oferta especial
-  { name: "Pack Poli 🚓", price: 50, type: "OFFER", includes: ["Bocadillo Tropical", "Sunset Punch"] }
+  { name: "Pack Poli",car: " 🚓", price: 50, type: "OFFER", includes: ["Bocadillo Tropical", "Sunset Punch"] }
 ];
 
 const cart = {};
@@ -20,7 +20,7 @@ function renderProducts() {
     const div = document.createElement("div");
     div.className = "product";
     div.innerHTML = `
-      <span>${p.name} - ${p.price}€</span>
+      <span>${p.name}${p.car} - ${p.price}€</span>
       <button onclick="addToCart(${i})">Añadir</button>
     `;
     container.appendChild(div);
