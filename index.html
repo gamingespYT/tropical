@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora en Mantenimiento</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', Arial, sans-serif;
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1400&q=80') no-repeat center center fixed;
+      background-size: cover;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Capa oscura para contraste */
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 1;
+    }
+
+    .floating-emoji {
+      position: absolute;
+      font-size: 2.5rem;
+      opacity: 0.85;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+      100% { transform: translateY(0); }
+    }
+
+    .emoji1 { top: 15%; left: 10%; animation-delay: 0s; }
+    .emoji2 { bottom: 20%; right: 12%; animation-delay: 1s; }
+    .emoji3 { top: 30%; right: 25%; animation-delay: 2s; }
+    .emoji4 { bottom: 15%; left: 18%; animation-delay: 3s; }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      max-width: 520px;
+      padding: 25px;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 14px;
+      backdrop-filter: blur(5px);
+      box-shadow: 0px 6px 15px rgba(0,0,0,0.4);
+    }
+
+    img {
+      max-width: 150px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 1.15rem;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    .btn {
+      background: #ffdd57;
+      color: #333;
+      padding: 14px 24px;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.25s ease-in-out;
+      box-shadow: 0px 4px 8px rgba(0,0,0,0.3);
+    }
+
+    .btn:hover {
+      transform: scale(1.07);
+      background: #ffe47b;
+    }
+  </style>
+</head>
+<body>
+  <!-- Emojis flotantes decorativos -->
+  <div class="floating-emoji emoji1">🍹</div>
+  <div class="floating-emoji emoji2">🌺</div>
+  <div class="floating-emoji emoji3">🌴</div>
+  <div class="floating-emoji emoji4">🔥</div>
+
+  <div class="container">
+    <img src="https://gamingespyt.github.io/gamingesp/img/Tropical_Heights.png" alt="Tropical Heights Logo">
+
+    <h1>🌴 Calculadora en Mantenimiento ⚠️</h1>
+    <p>
+      Queridos trabajadores, la calculadora web de Tropical Heights se encuentra actualmente en mantenimiento.  
+      Estamos trabajando para finalizarlo lo antes posible. ⏳🍍
+    </p>
+  </div>
+</body>
+</html>
