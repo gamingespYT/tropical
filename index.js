@@ -1,4 +1,4 @@
-const products = [
+﻿const products = [
   { name: "Diva's Secret", car: "", price: 40, type: "A" },
   { name: "Choco Rumba", car: "", price: 36, type: "A" },
   { name: "Sky Beeze", car: "", price: 36, type: "A" },

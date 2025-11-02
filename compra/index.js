@@ -1,146 +1,192 @@
-// index.js - control de ingredientes y lista de compra
-const products = [
-  { name: "Whisky", emoji: "🥃", price: 7 },
-  { name: "Mora", emoji: "🍇", price: 3 },
-  { name: "Arándanos", emoji: "🫐", price: 2 },
-  { name: "Ginebra", emoji: "🍸", price: 5 },
-  { name: "Frambuesa", emoji: "🍓", price: 3 },
-  { name: "Pétalos de Rosa", emoji: "🌹", price: 4 },
-  { name: "Licor 34", emoji: "🥃", price: 6 },
-  { name: "Latacacao", emoji: "🍫", price: 6 },
-  { name: "Ron Blanco", emoji: "🥃", price: 5 },
-  { name: "Naranja", emoji: "🍊", price: 3 },
-  { name: "Lima (zumo)", emoji: "🍋", price: 5 },
-  { name: "Vodka", emoji: "🍸", price: 5 },
-  { name: "Limón (trozos)", emoji: "🍋", price: 2 },
-  { name: "Coco", emoji: "🥥", price: 4 },
-  { name: "Huevo", emoji: "🥚", price: 2 },
-  { name: "Queso", emoji: "🧀", price: 2 },
-  { name: "Salmón", emoji: "🐟", price: 2 },
-  { name: "Harina", emoji: "🌾", price: 2 },
-  { name: "Langostino", emoji: "🦐", price: 5 },
-  { name: "Aceite", emoji: "🫒", price: 3 },
-  { name: "Pan", emoji: "🍞", price: 1 },
-  { name: "Piña", emoji: "🍍", price: 3 },
-  { name: "Bacon", emoji: "🥓", price: 2 }
+const ingredients = [
+  { name: "Whisky 🥃", price: 7 },
+  { name: "Mora 🍇", price: 3 },
+  { name: "Arándanos 🫐", price: 2 },
+  { name: "Ginebra 🍸", price: 5 },
+  { name: "Frambuesa 🍓", price: 3 },
+  { name: "Pétalos de Rosa 🌹", price: 4 },
+  { name: "Licor 34 🥃", price: 6 },
+  { name: "Latacacao 🍫", price: 6 },
+  { name: "Ron Blanco 🥃", price: 5 },
+  { name: "Naranja 🍊", price: 3 },
+  { name: "Lima 🍋", price: 5 },
+  { name: "Vodka 🍸", price: 5 },
+  { name: "Limón 🍋", price: 2 },
+  { name: "Coco 🥥", price: 4 },
+  { name: "Huevo 🥚", price: 2 },
+  { name: "Queso 🧀", price: 2 },
+  { name: "Salmón 🐟", price: 2 },
+  { name: "Harina 🌾", price: 2 },
+  { name: "Langostino 🦐", price: 5 },
+  { name: "Aceite 🫒", price: 3 },
+  { name: "Pan 🍞", price: 1 },
+  { name: "Piña 🍍", price: 3 },
+  { name: "Bacon 🥓", price: 2 }
 ];
 
-const cart = {}; // { "Whisky": { qty: number, price: number } }
+const packs = [
+  { name: "Diva's Secret 🍸", ingredients: ["Ginebra 🍸", "Frambuesa 🍓", "Pétalos de Rosa 🌹"] },
+  { name: "Choco Rumba 🍫", ingredients: ["Latacacao 🍫", "Licor 34 🥃"] },
+  { name: "Sky Breeze 🍹", ingredients: ["Limón 🍋", "Arándanos 🫐", "Vodka 🍸"] },
+  { name: "Dark Moon 🌙", ingredients: ["Mora 🍇", "Arándanos 🫐", "Whisky 🥃"] },
+  { name: "Mini Wrap de Salmón 🌯", ingredients: ["Huevo 🥚", "Queso 🧀", "Salmón 🐟"] },
+  { name: "Langostinos Tempura 🍤", ingredients: ["Harina 🌾", "Langostino 🦐", "Aceite 🫒"] },
+  { name: "Bocadillo Tropical 🥪", ingredients: ["Pan 🍞", "Piña 🍍", "Bacon 🥓", "Queso 🧀", "Huevo 🥚"] },
+  { name: "Sunset Punch 🍹", ingredients: ["Coco 🥥", "Naranja 🍊"] },
+  { name: "Mai Tai 🍹", ingredients: ["Ron Blanco 🥃", "Lima 🍋", "Naranja 🍊"] }
+];
 
-const productsContainer = document.getElementById('products');
-const listEl = document.getElementById('list');
-const totalEl = document.getElementById('total');
-const notif = document.getElementById('notification');
-const copyBtn = document.getElementById('copyBtn');
-const resetBtn = document.getElementById('resetBtn');
+const cart = {};
+const striked = {};
 
-function renderProducts(){
-  productsContainer.innerHTML = '';
-  products.forEach((p, i) => {
-    const row = document.createElement('div');
-    row.className = 'product';
-    row.innerHTML = `
-      <div class="left">
-        <div class="emoji">${p.emoji}</div>
-        <div>
-          <div class="meta">${p.name}</div>
-          <div class="price">${p.price}€</div>
-        </div>
-      </div>
+function renderLists() {
+  const ingContainer = document.getElementById("ingredients");
+  const packContainer = document.getElementById("packs");
 
-      <div class="controls" aria-label="${p.name} controls">
-        <button aria-label="restar" onclick="decrease(${i})">➖</button>
-        <div class="qty-badge" id="badge-${i}">0</div>
-        <button aria-label="sumar" onclick="increase(${i})">➕</button>
-      </div>
-    `;
-    productsContainer.appendChild(row);
+  ingredients.forEach((item) => {
+    const div = document.createElement("div");
+    div.className = "item";
+    
+    const nameSpan = document.createElement("span");
+    nameSpan.textContent = `${item.name} - ${item.price}€`;
+    
+    const buttonsDiv = document.createElement("div");
+    
+    const addBtn = document.createElement("button");
+    addBtn.textContent = "➕";
+    addBtn.onclick = function() { addItem(item.name, item.price); };
+    
+    const removeBtn = document.createElement("button");
+    removeBtn.textContent = "➖";
+    removeBtn.onclick = function() { removeItem(item.name); };
+    
+    buttonsDiv.appendChild(addBtn);
+    buttonsDiv.appendChild(removeBtn);
+    div.appendChild(nameSpan);
+    div.appendChild(buttonsDiv);
+    ingContainer.appendChild(div);
+  });
+
+  packs.forEach((pack) => {
+    const div = document.createElement("div");
+    div.className = "item";
+    
+    const nameSpan = document.createElement("span");
+    nameSpan.textContent = pack.name;
+    
+    const buttonsDiv = document.createElement("div");
+    
+    const addBtn = document.createElement("button");
+    addBtn.textContent = "➕";
+    addBtn.onclick = function() { addPack(pack.name); };
+    
+    const removeBtn = document.createElement("button");
+    removeBtn.textContent = "➖";
+    removeBtn.onclick = function() { removePack(pack.name); };
+    
+    buttonsDiv.appendChild(addBtn);
+    buttonsDiv.appendChild(removeBtn);
+    div.appendChild(nameSpan);
+    div.appendChild(buttonsDiv);
+    packContainer.appendChild(div);
   });
 }
 
-function increase(index){
-  const p = products[index];
-  if(!cart[p.name]) cart[p.name] = { qty:0, price: p.price };
-  cart[p.name].qty++;
-  updateQtyBadge(index);
-  updateList();
-  showNotification(`Añadido 1 x ${p.name}`);
+function addItem(name, price) {
+  if (!cart[name]) cart[name] = { qty: 0, price };
+  cart[name].qty++;
+  updateCart();
 }
 
-function decrease(index){
-  const p = products[index];
-  if(!cart[p.name]) return;
-  cart[p.name].qty--;
-  if(cart[p.name].qty <= 0) delete cart[p.name];
-  updateQtyBadge(index);
-  updateList();
-  showNotification(`Restado 1 x ${p.name}`);
+function removeItem(name) {
+  if (cart[name]) {
+    cart[name].qty--;
+    if (cart[name].qty <= 0) delete cart[name];
+  }
+  updateCart();
 }
 
-function updateQtyBadge(index){
-  const p = products[index];
-  const badge = document.getElementById(`badge-${index}`);
-  const qty = cart[p.name]?.qty || 0;
-  badge.textContent = qty;
+function addPack(packName) {
+  const pack = packs.find(p => p.name === packName);
+  if (!pack) return;
+  pack.ingredients.forEach(ing => {
+    const item = ingredients.find(i => i.name === ing);
+    if (item) addItem(item.name, item.price);
+  });
 }
 
-function updateList(){
-  listEl.innerHTML = '';
+function removePack(packName) {
+  const pack = packs.find(p => p.name === packName);
+  if (!pack) return;
+  pack.ingredients.forEach(ing => {
+    removeItem(ing);
+  });
+}
+
+function updateCart() {
+  const cartEl = document.getElementById("cart");
+  const totalEl = document.getElementById("total");
+  cartEl.innerHTML = "";
   let total = 0;
-  const entries = Object.keys(cart);
-  if(entries.length === 0){
-    listEl.textContent = 'Añade ingredientes con ➕ para que aparezcan aquí...';
-    totalEl.textContent = '0€';
+
+  if (Object.keys(cart).length === 0) {
+    cartEl.textContent = "Añade ingredientes o packs para generar la lista...";
+    totalEl.textContent = "Total: 0€";
     return;
   }
 
-  entries.forEach(name => {
+  for (let name in cart) {
     const item = cart[name];
-    const row = document.createElement('div');
-    row.className = 'list-item';
-    row.innerHTML = `<div>${item.qty}x ${name}</div><div>${item.qty * item.price}€</div>`;
-    listEl.appendChild(row);
-    total += item.qty * item.price;
-  });
+    total += item.price * item.qty;
+    
+    const line = document.createElement("div");
+    line.textContent = `${item.qty}x ${name} = ${item.price * item.qty}€`;
+    line.style.cursor = "pointer";
+    line.style.userSelect = "none";
+    
+    if (striked[name]) {
+      line.style.textDecoration = "line-through";
+      line.style.opacity = "0.5";
+    }
+    
+    line.onclick = function() {
+      striked[name] = !striked[name];
+      updateCart();
+    };
+    
+    cartEl.appendChild(line);
+  }
 
-  totalEl.textContent = `${total}€`;
+  totalEl.textContent = `Total: ${total}€`;
 }
 
-function copyList(){
-  const entries = Object.keys(cart);
-  if(entries.length === 0){
-    showNotification('⚠️ No hay nada que copiar');
+function copyList() {
+  if (Object.keys(cart).length === 0) {
+    showNotification("⚠️ No hay nada que copiar");
     return;
   }
-  let text = '';
-  entries.forEach(name => {
-    text += `${cart[name].qty}x ${name}\n`;
-  });
-  navigator.clipboard.writeText(text).then(() => {
-    showNotification('✅ Lista copiada al portapapeles');
-  }).catch(()=> showNotification('❌ Error al copiar'));
+
+  let text = "";
+  for (let key in cart) {
+    const item = cart[key];
+    text += `${item.qty}x ${key}\n`;
+  }
+  navigator.clipboard.writeText(text);
+  showNotification("✅ Lista copiada al portapapeles");
 }
 
-function resetAll(){
-  for(const k in cart) delete cart[k];
-  // reset badges
-  products.forEach((_,i)=> {
-    const b = document.getElementById(`badge-${i}`);
-    if(b) b.textContent = 0;
-  });
-  updateList();
-  showNotification('🔄 Lista reiniciada');
+function resetCart() {
+  for (let key in cart) delete cart[key];
+  for (let key in striked) delete striked[key];
+  updateCart();
+  showNotification("🔄 Lista reseteada");
 }
 
-function showNotification(msg){
-  notif.textContent = msg;
-  notif.classList.add('show');
-  setTimeout(()=> notif.classList.remove('show'), 2500);
+function showNotification(msg) {
+  const n = document.getElementById("notification");
+  n.textContent = msg;
+  n.classList.add("show");
+  setTimeout(() => n.classList.remove("show"), 3000);
 }
 
-/* events */
-copyBtn.addEventListener('click', copyList);
-resetBtn.addEventListener('click', resetAll);
-
-/* initial render */
-renderProducts();
+renderLists();
