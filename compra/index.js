@@ -1,28 +1,39 @@
 const ingredients = [
-  { name: "Whisky 🥃", price: 7 },
-  { name: "Mora 🍇", price: 3 },
-  { name: "Arándanos 🫐", price: 2 },
-  { name: "Ginebra 🍸", price: 5 },
-  { name: "Frambuesa 🍓", price: 3 },
-  { name: "Pétalos de Rosa 🌹", price: 4 },
-  { name: "Licor 34 🥃", price: 6 },
-  { name: "Latacacao 🍫", price: 6 },
-  { name: "Ron Blanco 🥃", price: 5 },
-  { name: "Naranja 🍊", price: 3 },
-  { name: "Lima 🍋", price: 5 },
-  { name: "Vodka 🍸", price: 5 },
-  { name: "Limón 🍋", price: 2 },
-  { name: "Coco 🥥", price: 4 },
-  { name: "Huevo 🥚", price: 2 },
-  { name: "Queso 🧀", price: 2 },
-  { name: "Salmón 🐟", price: 2 },
-  { name: "Harina 🌾", price: 2 },
-  { name: "Langostino 🦐", price: 5 },
-  { name: "Aceite 🫒", price: 3 },
-  { name: "Pan 🍞", price: 1 },
-  { name: "Piña 🍍", price: 3 },
-  { name: "Bacon 🥓", price: 2 }
+  { name: "Whisky 🥃", price: 7, aisle: "9C" },
+  { name: "Mora 🍇", price: 3, aisle: "26" },
+  { name: "Arándanos 🫐", price: 2, aisle: "26" },
+  { name: "Ginebra 🍸", price: 5, aisle: "9C" },
+  { name: "Frambuesa 🍓", price: 3, aisle: "26" },
+  { name: "Pétalos de Rosa 🌹", price: 4, aisle: "2D" },
+  { name: "Licor 34 🥃", price: 6, aisle: "9C" },
+  { name: "Latacacao 🍫", price: 6, aisle: "2D" },
+  { name: "Ron Blanco 🥃", price: 5, aisle: "9C" },
+  { name: "Naranja 🍊", price: 3, aisle: "26" },
+  { name: "Lima 🍋", price: 5, aisle: "26" },
+  { name: "Vodka 🍸", price: 5, aisle: "9C" },
+  { name: "Limón 🍋", price: 2, aisle: "26" },
+  { name: "Coco 🥥", price: 4, aisle: "26" },
+  { name: "Huevo 🥚", price: 2, aisle: "24" },
+  { name: "Queso 🧀", price: 2, aisle: "24" },
+  { name: "Salmón 🐟", price: 2, aisle: "28" },
+  { name: "Harina 🌾", price: 2, aisle: "1B" },
+  { name: "Langostino 🦐", price: 5, aisle: "28" },
+  { name: "Aceite 🫒", price: 3, aisle: "1B" },
+  { name: "Pan 🍞", price: 1, aisle: "1B" },
+  { name: "Piña 🍍", price: 3, aisle: "26" },
+  { name: "Bacon 🥓", price: 2, aisle: "31" }
 ];
+
+const aisleOrder = ["1B", "2D", "9C", "24", "26", "28", "31"];
+const aisleNames = {
+  "1B": "Harina, Aceite y Pan",
+  "2D": "Repostería",
+  "9C": "Bebidas Alcohólicas",
+  "24": "Lácteos",
+  "26": "Frutas y Verduras",
+  "28": "Pescadería",
+  "31": "Carnicería"
+};
 
 const packs = [
   { name: "Diva's Secret 🍸", ingredients: ["Ginebra 🍸", "Frambuesa 🍓", "Pétalos de Rosa 🌹"] },
@@ -39,6 +50,30 @@ const packs = [
 const cart = {};
 const striked = {};
 const packCounts = {};
+
+// Cargar datos del localStorage
+function loadFromStorage() {
+  const savedCart = localStorage.getItem('tropicalCart');
+  const savedStriked = localStorage.getItem('tropicalStriked');
+  const savedPackCounts = localStorage.getItem('tropicalPackCounts');
+  
+  if (savedCart) {
+    Object.assign(cart, JSON.parse(savedCart));
+  }
+  if (savedStriked) {
+    Object.assign(striked, JSON.parse(savedStriked));
+  }
+  if (savedPackCounts) {
+    Object.assign(packCounts, JSON.parse(savedPackCounts));
+  }
+}
+
+// Guardar datos en localStorage
+function saveToStorage() {
+  localStorage.setItem('tropicalCart', JSON.stringify(cart));
+  localStorage.setItem('tropicalStriked', JSON.stringify(striked));
+  localStorage.setItem('tropicalPackCounts', JSON.stringify(packCounts));
+}
 
 function renderLists() {
   const ingContainer = document.getElementById("ingredients");
@@ -123,12 +158,14 @@ function addItem(name, price) {
   if (!cart[name]) cart[name] = { qty: 0, price };
   cart[name].qty++;
   updateCart();
+  saveToStorage();
 }
 
 function addItems(name, price, quantity) {
   if (!cart[name]) cart[name] = { qty: 0, price };
   cart[name].qty += quantity;
   updateCart();
+  saveToStorage();
 }
 
 function removeItem(name) {
@@ -137,6 +174,7 @@ function removeItem(name) {
     if (cart[name].qty <= 0) delete cart[name];
   }
   updateCart();
+  saveToStorage();
 }
 
 function updateIngredientDisplay(name) {
@@ -202,27 +240,54 @@ function updateCart() {
     return;
   }
 
+  // Agrupar items por pasillo
+  const itemsByAisle = {};
+  
   for (let name in cart) {
     const item = cart[name];
-    total += item.price * item.qty;
+    const ingredient = ingredients.find(i => i.name === name);
+    const aisle = ingredient ? ingredient.aisle : "Sin pasillo";
     
-    const line = document.createElement("div");
-    line.textContent = `${item.qty}x ${name} = ${item.price * item.qty}€`;
-    line.style.cursor = "pointer";
-    line.style.userSelect = "none";
-    
-    if (striked[name]) {
-      line.style.textDecoration = "line-through";
-      line.style.opacity = "0.5";
+    if (!itemsByAisle[aisle]) {
+      itemsByAisle[aisle] = [];
     }
     
-    line.onclick = function() {
-      striked[name] = !striked[name];
-      updateCart();
-    };
-    
-    cartEl.appendChild(line);
+    itemsByAisle[aisle].push({ name, ...item });
+    total += item.price * item.qty;
   }
+
+  // Mostrar items ordenados por pasillo
+  aisleOrder.forEach(aisle => {
+    if (itemsByAisle[aisle] && itemsByAisle[aisle].length > 0) {
+      // Encabezado del pasillo
+      const aisleHeader = document.createElement("div");
+      aisleHeader.className = "aisle-header";
+      aisleHeader.textContent = `📍 Pasillo ${aisle} - ${aisleNames[aisle]}`;
+      cartEl.appendChild(aisleHeader);
+      
+      // Items del pasillo
+      itemsByAisle[aisle].forEach(item => {
+        const line = document.createElement("div");
+        line.className = "cart-item";
+        line.textContent = `${item.qty}x ${item.name} = ${item.price * item.qty}€`;
+        line.style.cursor = "pointer";
+        line.style.userSelect = "none";
+        
+        if (striked[item.name]) {
+          line.style.textDecoration = "line-through";
+          line.style.opacity = "0.5";
+        }
+        
+        line.onclick = function() {
+          striked[item.name] = !striked[item.name];
+          saveToStorage();
+          updateCart();
+        };
+        
+        cartEl.appendChild(line);
+      });
+    }
+  });
 
   totalEl.textContent = `Total: ${total}€`;
 }
@@ -233,11 +298,33 @@ function copyList() {
     return;
   }
 
-  let text = "";
-  for (let key in cart) {
-    const item = cart[key];
-    text += `${item.qty}x ${key}\n`;
+  // Agrupar items por pasillo
+  const itemsByAisle = {};
+  
+  for (let name in cart) {
+    const item = cart[name];
+    const ingredient = ingredients.find(i => i.name === name);
+    const aisle = ingredient ? ingredient.aisle : "Sin pasillo";
+    
+    if (!itemsByAisle[aisle]) {
+      itemsByAisle[aisle] = [];
+    }
+    
+    itemsByAisle[aisle].push({ name, ...item });
   }
+
+  // Generar texto ordenado por pasillo
+  let text = "";
+  aisleOrder.forEach(aisle => {
+    if (itemsByAisle[aisle] && itemsByAisle[aisle].length > 0) {
+      text += `📍 Pasillo ${aisle} - ${aisleNames[aisle]}\n`;
+      itemsByAisle[aisle].forEach(item => {
+        text += `${item.qty}x ${item.name}\n`;
+      });
+      text += "\n";
+    }
+  });
+  
   navigator.clipboard.writeText(text);
   showNotification("✅ Lista copiada al portapapeles");
 }
@@ -246,6 +333,11 @@ function resetCart() {
   for (let key in cart) delete cart[key];
   for (let key in striked) delete striked[key];
   for (let key in packCounts) delete packCounts[key];
+  
+  // Limpiar localStorage
+  localStorage.removeItem('tropicalCart');
+  localStorage.removeItem('tropicalStriked');
+  localStorage.removeItem('tropicalPackCounts');
   
   // Actualizar todas las cantidades a 0
   ingredients.forEach(item => updateIngredientDisplay(item.name));
@@ -262,4 +354,11 @@ function showNotification(msg) {
   setTimeout(() => n.classList.remove("show"), 3000);
 }
 
+// Inicializar la aplicación
+loadFromStorage();
 renderLists();
+updateCart();
+
+// Actualizar las cantidades visibles después de cargar
+ingredients.forEach(item => updateIngredientDisplay(item.name));
+packs.forEach(pack => updatePackDisplay(pack.name));

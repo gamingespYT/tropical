@@ -114,6 +114,32 @@ h1 {
   box-shadow: 0 0 10px rgba(255,255,255,0.05);
 }
 
+.aisle-header {
+  font-weight: bold;
+  color: #58a6ff;
+  margin-top: 15px;
+  margin-bottom: 8px;
+  padding: 8px;
+  background: #161b22;
+  border-radius: 5px;
+  border-left: 3px solid #58a6ff;
+}
+
+.aisle-header:first-child {
+  margin-top: 0;
+}
+
+.cart-item {
+  padding: 5px 10px;
+  margin: 3px 0;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.cart-item:hover {
+  background: #161b22;
+}
+
 .total {
   font-weight: bold;
   font-size: 1.2rem;
