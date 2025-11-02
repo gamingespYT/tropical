@@ -32,10 +32,10 @@ function renderProducts() {
   });
 }
 
-function addToCart(index) {
+function addToCart(index, fromButton = false) {
   const product = products[index];
   const input = document.getElementById(`qty-${index}`);
-  const qtyToAdd = parseInt(input?.value || 1);
+  const qtyToAdd = fromButton ? 1 : parseInt(input?.value || 1);
 
   if (qtyToAdd <= 0 || isNaN(qtyToAdd)) return;
 
@@ -88,7 +88,7 @@ function updateList() {
         row.innerHTML = `
           <span class="item-info">${item.qty}x ${p.name} ${subtotal}€</span>
           <div class="list-controls">
-            <button onclick="addToCart(${i})">➕</button>
+            <button onclick="addToCart(${i}, true)">➕</button>
             <button onclick="removeFromCart(${i})">➖</button>
           </div>
         `;
@@ -107,7 +107,7 @@ function updateList() {
         row.innerHTML = `
           <span class="item-info">${item.qty}x ${item.name} ${subtotal}€</span>
           <div class="list-controls">
-            <button onclick="addToCart(${i})">➕</button>
+            <button onclick="addToCart(${i}, true)">➕</button>
             <button onclick="removeFromCart(${i})">➖</button>
           </div>
         `;
