@@ -38,6 +38,7 @@ const packs = [
 
 const cart = {};
 const striked = {};
+const packCounts = {};
 
 function renderLists() {
   const ingContainer = document.getElementById("ingredients");
@@ -51,17 +52,30 @@ function renderLists() {
     nameSpan.textContent = `${item.name} - ${item.price}€`;
     
     const buttonsDiv = document.createElement("div");
-    
-    const addBtn = document.createElement("button");
-    addBtn.textContent = "➕";
-    addBtn.onclick = function() { addItem(item.name, item.price); };
+    buttonsDiv.className = "item-controls";
     
     const removeBtn = document.createElement("button");
     removeBtn.textContent = "➖";
-    removeBtn.onclick = function() { removeItem(item.name); };
+    removeBtn.onclick = function() { removeItem(item.name); updateIngredientDisplay(item.name); };
     
-    buttonsDiv.appendChild(addBtn);
+    const quantitySpan = document.createElement("span");
+    quantitySpan.className = "quantity";
+    quantitySpan.id = `qty-${item.name}`;
+    quantitySpan.textContent = "0";
+    
+    const addBtn = document.createElement("button");
+    addBtn.textContent = "➕";
+    addBtn.onclick = function() { addItem(item.name, item.price); updateIngredientDisplay(item.name); };
+    
+    const add10Btn = document.createElement("button");
+    add10Btn.textContent = "➕10";
+    add10Btn.className = "add10-btn";
+    add10Btn.onclick = function() { addItems(item.name, item.price, 10); updateIngredientDisplay(item.name); };
+    
     buttonsDiv.appendChild(removeBtn);
+    buttonsDiv.appendChild(quantitySpan);
+    buttonsDiv.appendChild(addBtn);
+    buttonsDiv.appendChild(add10Btn);
     div.appendChild(nameSpan);
     div.appendChild(buttonsDiv);
     ingContainer.appendChild(div);
@@ -75,17 +89,30 @@ function renderLists() {
     nameSpan.textContent = pack.name;
     
     const buttonsDiv = document.createElement("div");
-    
-    const addBtn = document.createElement("button");
-    addBtn.textContent = "➕";
-    addBtn.onclick = function() { addPack(pack.name); };
+    buttonsDiv.className = "item-controls";
     
     const removeBtn = document.createElement("button");
     removeBtn.textContent = "➖";
-    removeBtn.onclick = function() { removePack(pack.name); };
+    removeBtn.onclick = function() { removePack(pack.name); updatePackDisplay(pack.name); };
     
-    buttonsDiv.appendChild(addBtn);
+    const quantitySpan = document.createElement("span");
+    quantitySpan.className = "quantity";
+    quantitySpan.id = `qty-pack-${pack.name}`;
+    quantitySpan.textContent = "0";
+    
+    const addBtn = document.createElement("button");
+    addBtn.textContent = "➕";
+    addBtn.onclick = function() { addPack(pack.name); updatePackDisplay(pack.name); };
+    
+    const add10Btn = document.createElement("button");
+    add10Btn.textContent = "➕10";
+    add10Btn.className = "add10-btn";
+    add10Btn.onclick = function() { addPacks(pack.name, 10); updatePackDisplay(pack.name); };
+    
     buttonsDiv.appendChild(removeBtn);
+    buttonsDiv.appendChild(quantitySpan);
+    buttonsDiv.appendChild(addBtn);
+    buttonsDiv.appendChild(add10Btn);
     div.appendChild(nameSpan);
     div.appendChild(buttonsDiv);
     packContainer.appendChild(div);
@@ -98,6 +125,12 @@ function addItem(name, price) {
   updateCart();
 }
 
+function addItems(name, price, quantity) {
+  if (!cart[name]) cart[name] = { qty: 0, price };
+  cart[name].qty += quantity;
+  updateCart();
+}
+
 function removeItem(name) {
   if (cart[name]) {
     cart[name].qty--;
@@ -106,21 +139,55 @@ function removeItem(name) {
   updateCart();
 }
 
+function updateIngredientDisplay(name) {
+  const qtyEl = document.getElementById(`qty-${name}`);
+  if (qtyEl) {
+    qtyEl.textContent = cart[name] ? cart[name].qty : 0;
+  }
+}
+
 function addPack(packName) {
   const pack = packs.find(p => p.name === packName);
   if (!pack) return;
+  
+  if (!packCounts[packName]) packCounts[packName] = 0;
+  packCounts[packName]++;
+  
   pack.ingredients.forEach(ing => {
     const item = ingredients.find(i => i.name === ing);
-    if (item) addItem(item.name, item.price);
+    if (item) {
+      addItem(item.name, item.price);
+      updateIngredientDisplay(item.name);
+    }
   });
+}
+
+function addPacks(packName, quantity) {
+  for (let i = 0; i < quantity; i++) {
+    addPack(packName);
+  }
 }
 
 function removePack(packName) {
   const pack = packs.find(p => p.name === packName);
   if (!pack) return;
+  
+  if (packCounts[packName]) {
+    packCounts[packName]--;
+    if (packCounts[packName] <= 0) delete packCounts[packName];
+  }
+  
   pack.ingredients.forEach(ing => {
     removeItem(ing);
+    updateIngredientDisplay(ing);
   });
+}
+
+function updatePackDisplay(packName) {
+  const qtyEl = document.getElementById(`qty-pack-${packName}`);
+  if (qtyEl) {
+    qtyEl.textContent = packCounts[packName] || 0;
+  }
 }
 
 function updateCart() {
@@ -178,6 +245,12 @@ function copyList() {
 function resetCart() {
   for (let key in cart) delete cart[key];
   for (let key in striked) delete striked[key];
+  for (let key in packCounts) delete packCounts[key];
+  
+  // Actualizar todas las cantidades a 0
+  ingredients.forEach(item => updateIngredientDisplay(item.name));
+  packs.forEach(pack => updatePackDisplay(pack.name));
+  
   updateCart();
   showNotification("🔄 Lista reseteada");
 }
