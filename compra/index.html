@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lista de Compra - Tropical Heights</title>
+  <link rel="stylesheet" href="index.css" />
+  <link rel="icon" href="https://gamingespyt.github.io/gamingesp/img/Tropical_Heights.png" />
+</head>
+<body>
+  <header class="header">
+    <div class="logos">
+      <img src="https://guaguarp.com/logo.png" alt="Logo servidor" class="logo small">
+      <img src="https://gamingespyt.github.io/gamingesp/img/Tropical_Heights.png" alt="Logo local" class="logo">
+    </div>
+    <h1>🛒 Lista de Compra - Tropical Heights</h1>
+    <p class="subtitle">Gestiona ingredientes con ➕ / ➖ y copia la lista rápida para tu compra</p>
+  </header>
+
+  <main class="layout">
+    <section class="left products">
+      <h2>Ingredientes</h2>
+      <div id="products"></div>
+    </section>
+
+    <aside class="right cart">
+      <h2>Tu lista</h2>
+      <div id="list" class="list">Añade ingredientes con ➕ para que aparezcan aquí...</div>
+      <div class="total">Total: <span id="total">0€</span></div>
+
+      <div class="actions">
+        <button id="copyBtn" class="btn primary">📋 Copiar lista</button>
+        <button id="resetBtn" class="btn danger">🔁 Reset</button>
+      </div>
+    </aside>
+  </main>
+
+  <div id="notification" class="notification" aria-live="polite"></div>
+
+  <script src="index.js"></script>
+</body>
+</html>
