@@ -13,6 +13,7 @@
 ];
 
 const cart = {};
+let employeeDiscount = false; // estado del descuento de empleados
 
 function renderProducts() {
   const container = document.getElementById("products");
@@ -116,6 +117,32 @@ function updateList() {
     }
   });
 
+  // Comprobar y aplicar descuento de empleados si está activo
+  const hasPackPoli = !!cart["Pack Poli"];
+  if (employeeDiscount) {
+    if (hasPackPoli) {
+      // No se permite con Pack Poli
+      showNotification("⚠️ El descuento no se puede aplicar con el Pack Poli");
+      employeeDiscount = false;
+      // quitar clase activa del botón si existe
+      const btn = document.getElementById('employee-btn');
+      if (btn) btn.classList.remove('active');
+    } else {
+      // calcular descuento del 25%
+      const discountAmount = Math.round((total * 0.25) * 100) / 100;
+      const totalAfter = Math.round((total - discountAmount) * 100) / 100;
+
+      // Añadir línea en el listado indicando el descuento
+      const discountRow = document.createElement('div');
+      discountRow.className = 'list-item discount';
+      discountRow.innerHTML = `<span class="item-info">Descuento empleados (25%)</span><span class="item-info">- ${discountAmount}€</span>`;
+      listEl.appendChild(discountRow);
+
+      totalEl.textContent = `Total: ${totalAfter}€ (Empleado)`;
+      return;
+    }
+  }
+
   totalEl.textContent = `Total: ${total}€`;
 }
 
@@ -131,6 +158,20 @@ function copyList() {
     text += `${item.qty}x ${item.name}\n`;
   }
 
+  // Si descuento de empleados activo y Pack Poli no está en el carrito, añadir línea
+  const hasPackPoli = !!cart["Pack Poli"];
+  if (employeeDiscount && !hasPackPoli) {
+    // calcular total y descuento para incluir en copia
+    let total = 0;
+    for (let key in cart) {
+      total += cart[key].qty * cart[key].price;
+    }
+    const discountAmount = Math.round((total * 0.25) * 100) / 100;
+    const totalAfter = Math.round((total - discountAmount) * 100) / 100;
+    text += `Descuento empleados (25%): -${discountAmount}€\n`;
+    text += `Total: ${totalAfter}€\n`;
+  }
+
   navigator.clipboard.writeText(text).then(() => {
     showNotification("✅ Lista copiada al portapapeles");
   });
@@ -142,6 +183,11 @@ function resetCart() {
   }
   updateList();
 
+  // resetear estado de descuento de empleados
+  employeeDiscount = false;
+  const btn = document.getElementById('employee-btn');
+  if (btn) btn.classList.remove('active');
+
   // 🔄 Resetear los inputs de cantidad a 1
   products.forEach((_, i) => {
     const input = document.getElementById(`qty-${i}`);
@@ -149,6 +195,25 @@ function resetCart() {
   });
 
   showNotification("🔄 Carrito reseteado y cantidades restauradas");
+}
+
+// Toggle para descuento de empleados
+function toggleEmployeeDiscount() {
+  // si ya hay Pack Poli en carrito, no permitir
+  const hasPackPoli = !!cart["Pack Poli"];
+  if (!employeeDiscount && hasPackPoli) {
+    showNotification("⚠️ No se puede activar el descuento con el Pack Poli en el carrito");
+    return;
+  }
+
+  employeeDiscount = !employeeDiscount;
+  const btn = document.getElementById('employee-btn');
+  if (btn) {
+    if (employeeDiscount) btn.classList.add('active'); else btn.classList.remove('active');
+  }
+
+  showNotification(employeeDiscount ? "✅ Descuento de empleados activado (25%)" : "🔔 Descuento de empleados desactivado");
+  updateList();
 }
 
 function showNotification(message) {

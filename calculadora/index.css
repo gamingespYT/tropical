@@ -178,6 +178,23 @@ h2 {
   transition: background 0.3s;
 }
 
+.employee-btn {
+  flex: 1;
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.12s;
+}
+
+.employee-btn.active {
+  background: #2ecc71;
+  box-shadow: 0 6px 12px rgba(46,204,113,0.25);
+  transform: translateY(-1px);
+}
+
 .copy-btn:hover {
   background: #d35400;
 }
@@ -213,6 +230,14 @@ h2 {
   margin-left: 20px;
   font-size: 0.9rem;
   color: #555;
+}
+
+.list-item.discount {
+  margin-top: 8px;
+  font-weight: bold;
+  color: #16a085;
+  display: flex;
+  justify-content: space-between;
 }
 
 @media (max-width: 768px) {
