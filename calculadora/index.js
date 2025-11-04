@@ -9,7 +9,7 @@
   { name: "Bocadillo Tropical", car: "", price: 30, type: "C" },
   { name: "Sunset Punch", car: "", price: 26, type: "B" },
   // Oferta especial
-  { name: "Pack Poli", car: " 🚓", price: 50, type: "OFFER", includes: ["Bocadillo Tropical", "Sunset Punch"] }
+  // { name: "Pack Poli", car: " 🚓", price: 50, type: "OFFER", includes: ["Bocadillo Tropical", "Sunset Punch"] }
 ];
 
 const cart = {};
