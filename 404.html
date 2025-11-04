@@ -10,7 +10,7 @@
       padding: 0;
       font-family: 'Poppins', Arial, sans-serif;
       color: #fff;
-      height: 100vh;
+      min-height: 100vh; /* allow content to grow */
       display: flex;
       justify-content: center;
       align-items: center;
@@ -18,7 +18,7 @@
       background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1400&q=80') no-repeat center center fixed;
       background-size: cover;
       position: relative;
-      overflow: hidden;
+      overflow: auto; /* allow scrolling on small devices */
     }
 
     /* Capa oscura para contraste */
@@ -35,7 +35,7 @@
 
     .floating-emoji {
       position: absolute;
-      font-size: 2.5rem;
+      font-size: clamp(1.2rem, 4vw, 2.5rem);
       opacity: 0.85;
       animation: float 6s ease-in-out infinite;
     }
@@ -55,7 +55,7 @@
       position: relative;
       z-index: 2;
       max-width: 520px;
-      padding: 25px;
+      padding: clamp(14px, 3vw, 25px);
       background: rgba(0, 0, 0, 0.4);
       border-radius: 14px;
       backdrop-filter: blur(5px);
@@ -63,13 +63,14 @@
     }
 
     img {
-      max-width: 150px;
+      max-width: clamp(80px, 25vw, 150px);
       margin-bottom: 20px;
+      height: auto;
       border-radius: 10px;
     }
 
     h1 {
-      font-size: 2.4rem;
+      font-size: clamp(1.2rem, 4.5vw, 2.4rem);
       margin-bottom: 10px;
     }
 
@@ -97,6 +98,11 @@
     .btn:hover {
       transform: scale(1.07);
       background: #ffe47b;
+    }
+    @media (max-width: 480px) {
+      .floating-emoji { display: none; }
+      .container { width: calc(100% - 28px); max-width: 420px; }
+      p { font-size: 1rem; }
     }
   </style>
 </head>

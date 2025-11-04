@@ -25,6 +25,9 @@ header img {
   margin: 10px;
 }
 
+/* Ensure header images and any images scale on small screens */
+header img, img { max-width: 100%; height: auto; }
+
 h1 {
   font-size: 1.8rem;
   margin: 10px 0;
@@ -42,7 +45,7 @@ h1 {
 .products-container,
 .cart-container {
   flex: 1;
-  min-width: 300px;
+  min-width: 0; /* allow containers to shrink on small screens */
   background: #fff;
   padding: 20px;
   border-radius: 15px;
@@ -244,4 +247,11 @@ h2 {
   .layout {
     flex-direction: column;
   }
+}
+
+@media (max-width: 480px) {
+  .products-container, .cart-container { min-width: 100%; width: 100%; padding: 14px; }
+  header img { max-height: 56px; }
+  h1 { font-size: 1.2rem; }
+  .qty-input { width: 48px; }
 }

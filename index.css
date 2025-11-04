@@ -5,12 +5,12 @@ body {
   padding: 0;
   font-family: 'Poppins', sans-serif;
   color: #fff;
-  height: 100vh;
+  min-height: 100vh; /* allow content to grow on small screens */
   display: flex;
   justify-content: center;
   align-items: center;
   background: linear-gradient(180deg, #007991, #78ffd6);
-  overflow: hidden;
+  overflow: auto; /* allow scrolling on small devices */
 }
 
 /* Fondo con efecto visual */
@@ -29,8 +29,8 @@ body {
   position: absolute;
   top: 5%;
   right: 10%;
-  width: 120px;
-  height: 120px;
+  width: clamp(64px, 12vw, 140px);
+  height: clamp(64px, 12vw, 140px);
   background: radial-gradient(circle, #ffd56b, #ffb347);
   border-radius: 50%;
   filter: blur(3px);
@@ -73,14 +73,16 @@ body {
 }
 
 .logo {
-  width: 130px;
+  width: clamp(80px, 18vw, 130px);
+  max-width: 45%;
+  height: auto;
   border-radius: 14px;
   margin-bottom: 15px;
   box-shadow: 0 0 25px rgba(255,255,255,0.3);
 }
 
 h1 {
-  font-size: 2.2rem;
+  font-size: clamp(1.25rem, 3.2vw, 2.2rem);
   margin-bottom: 10px;
   color: #ffdd57;
   text-shadow: 0 2px 8px rgba(0,0,0,0.3);
@@ -91,7 +93,7 @@ h1 span {
 }
 
 .subtitle {
-  font-size: 1.1rem;
+  font-size: clamp(0.9rem, 1.8vw, 1.1rem);
   margin-bottom: 25px;
   opacity: 0.9;
   line-height: 1.5;
@@ -167,11 +169,14 @@ footer {
 /* Emojis flotantes */
 .emoji {
   position: absolute;
-  font-size: 2rem;
+  font-size: clamp(1.2rem, 3.5vw, 2rem);
   opacity: 0.8;
   animation: float 6s ease-in-out infinite;
   z-index: 0;
 }
+
+/* make images responsive across the site */
+img { max-width: 100%; height: auto; }
 
 .emoji1 { top: 10%; left: 12%; animation-delay: 0s; }
 .emoji2 { bottom: 15%; right: 10%; animation-delay: 1s; }
@@ -195,4 +200,13 @@ footer {
   .btn {
     width: 100%;
   }
+}
+
+@media (max-width: 420px) {
+  .container { padding: 18px 14px; border-radius: 16px; }
+  h1 { font-size: 1.2rem; }
+  .subtitle { font-size: 0.9rem; }
+  .sun { right: 6%; top: 6%; }
+  .palms { font-size: 1.4rem; bottom: 6%; left: 6%; }
+  .emoji { display: none; } /* reduce clutter on very small screens */
 }
