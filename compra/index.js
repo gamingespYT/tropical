@@ -292,41 +292,83 @@ function updateCart() {
   totalEl.textContent = `Total: ${total}€`;
 }
 
-function copyList() {
+function generateCode() {
   if (Object.keys(cart).length === 0) {
-    showNotification("⚠️ No hay nada que copiar");
+    showNotification("⚠️ No hay nada que generar");
     return;
   }
 
-  // Agrupar items por pasillo
-  const itemsByAisle = {};
+  // Crear objeto con toda la información
+  const data = {
+    cart: cart,
+    packCounts: packCounts
+  };
   
-  for (let name in cart) {
-    const item = cart[name];
-    const ingredient = ingredients.find(i => i.name === name);
-    const aisle = ingredient ? ingredient.aisle : "Sin pasillo";
-    
-    if (!itemsByAisle[aisle]) {
-      itemsByAisle[aisle] = [];
-    }
-    
-    itemsByAisle[aisle].push({ name, ...item });
-  }
+  // Convertir a JSON y codificar en Base64
+  const jsonString = JSON.stringify(data);
+  const code = btoa(encodeURIComponent(jsonString));
+  
+  // Copiar al portapapeles
+  navigator.clipboard.writeText(code);
+  showNotification("✅ Código copiado al portapapeles");
+}
 
-  // Generar texto ordenado por pasillo
-  let text = "";
-  aisleOrder.forEach(aisle => {
-    if (itemsByAisle[aisle] && itemsByAisle[aisle].length > 0) {
-      text += `📍 Pasillo ${aisle} - ${aisleNames[aisle]}\n`;
-      itemsByAisle[aisle].forEach(item => {
-        text += `${item.qty}x ${item.name}\n`;
-      });
-      text += "\n";
-    }
-  });
+function openLoadDialog() {
+  const dialog = document.getElementById("loadDialog");
+  dialog.classList.add("show");
+  document.getElementById("codeInput").value = "";
+}
+
+function closeLoadDialog() {
+  const dialog = document.getElementById("loadDialog");
+  dialog.classList.remove("show");
+}
+
+function loadFromCode() {
+  const codeInput = document.getElementById("codeInput").value.trim();
   
-  navigator.clipboard.writeText(text);
-  showNotification("✅ Lista copiada al portapapeles");
+  if (!codeInput) {
+    showNotification("⚠️ Por favor, pega un código");
+    return;
+  }
+  
+  try {
+    // Decodificar desde Base64 y parsear JSON
+    const jsonString = decodeURIComponent(atob(codeInput));
+    const data = JSON.parse(jsonString);
+    
+    // Validar que tenga la estructura correcta
+    if (!data.cart || typeof data.cart !== 'object') {
+      throw new Error("Formato de código inválido");
+    }
+    
+    // Limpiar carrito actual
+    for (let key in cart) delete cart[key];
+    for (let key in striked) delete striked[key];
+    for (let key in packCounts) delete packCounts[key];
+    
+    // Cargar nuevos datos
+    Object.assign(cart, data.cart);
+    if (data.packCounts) {
+      Object.assign(packCounts, data.packCounts);
+    }
+    
+    // Actualizar UI
+    saveToStorage();
+    updateCart();
+    for (const item of ingredients) {
+      updateIngredientDisplay(item.name);
+    }
+    for (const pack of packs) {
+      updatePackDisplay(pack.name);
+    }
+    
+    closeLoadDialog();
+    showNotification("✅ Lista cargada correctamente");
+  } catch (error) {
+    console.error("Error al cargar el código:", error);
+    showNotification("❌ Código inválido o corrupto");
+  }
 }
 
 function resetCart() {
@@ -340,8 +382,12 @@ function resetCart() {
   localStorage.removeItem('tropicalPackCounts');
   
   // Actualizar todas las cantidades a 0
-  ingredients.forEach(item => updateIngredientDisplay(item.name));
-  packs.forEach(pack => updatePackDisplay(pack.name));
+  for (const item of ingredients) {
+    updateIngredientDisplay(item.name);
+  }
+  for (const pack of packs) {
+    updatePackDisplay(pack.name);
+  }
   
   updateCart();
   showNotification("🔄 Lista reseteada");
@@ -360,5 +406,9 @@ renderLists();
 updateCart();
 
 // Actualizar las cantidades visibles después de cargar
-ingredients.forEach(item => updateIngredientDisplay(item.name));
-packs.forEach(pack => updatePackDisplay(pack.name));
+for (const item of ingredients) {
+  updateIngredientDisplay(item.name);
+}
+for (const pack of packs) {
+  updatePackDisplay(pack.name);
+}
