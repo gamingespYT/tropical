@@ -259,14 +259,38 @@ function updateCart() {
   // Mostrar items ordenados por pasillo
   aisleOrder.forEach(aisle => {
     if (itemsByAisle[aisle] && itemsByAisle[aisle].length > 0) {
+      const aisleItems = itemsByAisle[aisle];
+      
+      // Verificar si todos los productos del pasillo están tachados
+      const allStriked = aisleItems.every(item => striked[item.name]);
+      
       // Encabezado del pasillo
       const aisleHeader = document.createElement("div");
       aisleHeader.className = "aisle-header";
       aisleHeader.textContent = `📍 Pasillo ${aisle} - ${aisleNames[aisle]}`;
+      aisleHeader.style.cursor = "pointer";
+      aisleHeader.style.userSelect = "none";
+      
+      // Si todos los productos están tachados, tachar el pasillo
+      if (allStriked) {
+        aisleHeader.style.textDecoration = "line-through";
+        aisleHeader.style.opacity = "0.6";
+      }
+      
+      // Click en el pasillo tача/destача todos sus productos
+      aisleHeader.onclick = function() {
+        const shouldStrike = !allStriked;
+        for (const item of aisleItems) {
+          striked[item.name] = shouldStrike;
+        }
+        saveToStorage();
+        updateCart();
+      };
+      
       cartEl.appendChild(aisleHeader);
       
       // Items del pasillo
-      itemsByAisle[aisle].forEach(item => {
+      for (const item of itemsByAisle[aisle]) {
         const line = document.createElement("div");
         line.className = "cart-item";
         line.textContent = `${item.qty}x ${item.name} = ${item.price * item.qty}€`;
@@ -285,7 +309,7 @@ function updateCart() {
         };
         
         cartEl.appendChild(line);
-      });
+      }
     }
   });
 
