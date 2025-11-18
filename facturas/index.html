@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Factura - Tropical Heights</title>
+  <link rel="icon" type="image/x-icon" href="https://gamingespyt.github.io/gamingesp/img/Tropical_Heights.png">
+  <link rel="stylesheet" href="factura.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+  <a href="../index.html" class="back-home" aria-label="Volver al inicio">
+    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="black" class="bi bi-arrow-bar-left" viewBox="0 0 16 16">
+      <path fill-rule="evenodd" d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5"/>
+    </svg>
+  </a>
+  <div class="invoice-container">
+    <div class="invoice-header">
+      <div class="logo-section">
+        <img src="https://gamingespyt.github.io/gamingesp/img/Tropical_Heights.png" alt="Logo Tropical Heights" class="main-logo">
+        <h1>Tropical Heights</h1>
+      </div>
+      <div class="invoice-info">
+        <h2>FACTURA</h2>
+        <p><strong>Número:</strong> <span id="invoice-number"></span></p>
+        <p><strong>Fecha:</strong> <span id="invoice-date"></span></p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="customer-info">
+      <h3>Datos del Cliente</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">Nombre completo:</span>
+          <span class="value" id="customer-name"></span>
+        </div>
+        <div class="info-item">
+          <span class="label">Teléfono:</span>
+          <span class="value" id="customer-phone"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="items-section">
+      <h3>Detalle de Productos</h3>
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio Unit.</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody id="items-body">
+          <!-- Se llenará dinámicamente -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="totals-section">
+      <div class="total-row subtotal-row">
+        <span>Subtotal:</span>
+        <span id="subtotal-amount"></span>
+      </div>
+      <div class="total-row discount-row" id="discount-row" style="display: none;">
+        <span>Descuento Empleados (25%):</span>
+        <span id="discount-amount"></span>
+      </div>
+      <div class="total-row final-row">
+        <span>TOTAL:</span>
+        <span id="final-amount"></span>
+      </div>
+    </div>
+
+    <div class="footer-section">
+      <p>Gracias por su compra en Tropical Heights</p>
+    </div>
+
+    <div class="print-button-container">
+      <button id="save-btn" onclick="saveInvoiceManually()" class="save-btn" style="display: none;">💾 Guardar Factura</button>
+      <button onclick="copyInvoiceCode()" class="code-btn">📋 Copiar Código</button>
+      <button onclick="downloadAsPNG()" class="png-btn">🖨️ Imprimir Factura</button>
+      <button onclick="window.location.href='index.html'" class="back-btn">✖️ Cerrar</button>
+    </div>
+    
+    <div id="code-notification" class="code-notification"></div>
+  </div>
+
+  <script src="factura.js"></script>
+</body>
+</html>

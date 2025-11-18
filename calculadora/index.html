@@ -44,10 +44,36 @@
         <button id="employee-btn" class="employee-btn" onclick="toggleEmployeeDiscount()">👥 Descuento empleados</button>
         <button class="reset-btn" onclick="resetCart()">🔄 Reset</button>
       </div>
+      <button class="invoice-btn" onclick="openInvoiceDialog()">🧾 Generar Factura</button>
     </div>
   </main>
 
   <div id="notification" class="notification"></div>
+
+  <!-- Diálogo de Factura -->
+  <dialog id="invoice-dialog" class="invoice-dialog">
+    <div class="dialog-content">
+      <h2>Generar Factura</h2>
+      <form id="invoice-form" onsubmit="generateInvoice(event)">
+        <div class="form-group">
+          <label for="invoice-name">Nombre *</label>
+          <input type="text" id="invoice-name" name="name" required placeholder="Ej: Juan">
+        </div>
+        <div class="form-group">
+          <label for="invoice-surname">Apellidos *</label>
+          <input type="text" id="invoice-surname" name="surname" required placeholder="Ej: García López">
+        </div>
+        <div class="form-group">
+          <label for="invoice-phone">Teléfono *</label>
+          <input type="tel" id="invoice-phone" name="phone" required placeholder="Ej: 612345678" pattern="[0-9]{9,15}">
+        </div>
+        <div class="dialog-buttons">
+          <button type="button" class="cancel-btn" onclick="closeInvoiceDialog()">Cancelar</button>
+          <button type="submit" class="submit-btn">Generar</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
 
   <script src="index.js"></script>
 </body>

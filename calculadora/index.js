@@ -239,4 +239,89 @@ function setGlobalQty(value) {
   });
 }
 
+// Funciones para el diálogo de factura
+function openInvoiceDialog() {
+  if (Object.keys(cart).length === 0) {
+    showNotification("⚠️ No hay productos en el carrito");
+    return;
+  }
+  
+  const dialog = document.getElementById('invoice-dialog');
+  if (dialog) {
+    dialog.showModal();
+  }
+}
+
+function closeInvoiceDialog() {
+  const dialog = document.getElementById('invoice-dialog');
+  if (dialog) {
+    dialog.close();
+    // Limpiar el formulario
+    document.getElementById('invoice-form').reset();
+  }
+}
+
+function generateInvoice(event) {
+  event.preventDefault();
+  
+  const name = document.getElementById('invoice-name').value.trim();
+  const surname = document.getElementById('invoice-surname').value.trim();
+  const phone = document.getElementById('invoice-phone').value.trim();
+  
+  if (!name || !surname || !phone) {
+    showNotification("⚠️ Por favor, completa todos los campos");
+    return;
+  }
+  
+  // Preparar datos de la factura
+  const invoiceData = {
+    name: name,
+    surname: surname,
+    phone: phone,
+    items: [],
+    employeeDiscount: employeeDiscount,
+    date: new Date().toISOString()
+  };
+  
+  // Añadir productos del carrito
+  let total = 0;
+  for (let key in cart) {
+    const item = cart[key];
+    const subtotal = item.qty * item.price;
+    total += subtotal;
+    
+    invoiceData.items.push({
+      name: item.name,
+      qty: item.qty,
+      price: item.price,
+      subtotal: subtotal
+    });
+  }
+  
+  invoiceData.total = total;
+  
+  // Calcular descuento si aplica
+  if (employeeDiscount && !cart["Pack Poli"]) {
+    const discountAmount = Math.ceil(total * 0.25);
+    invoiceData.discount = discountAmount;
+    invoiceData.finalTotal = total - discountAmount;
+  } else {
+    invoiceData.finalTotal = total;
+  }
+  
+  // Codificar datos en base64 para URL
+  const encodedData = btoa(encodeURIComponent(JSON.stringify(invoiceData)));
+  
+  // Generar URL de la factura
+  const invoiceURL = `${window.location.origin}${window.location.pathname.replace('calculadora/index.html', 'facturas/index.html').replace('calculadora/', '../facturas/')}?data=${encodedData}`;
+  
+  // Abrir en nueva pestaña
+  window.open(invoiceURL, '_blank');
+  
+  // Cerrar diálogo
+  closeInvoiceDialog();
+  
+  showNotification("✅ Factura generada correctamente");
+}
+
 renderProducts();
