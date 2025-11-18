@@ -27,7 +27,11 @@
 
   <main class="layout">
     <div class="products-container">
-      <h2>Productos</h2>
+      <div class="products-header">
+        <h2>Productos</h2>
+        <input type="number" id="global-qty" class="qty-input" min="1" value="1" oninput="setGlobalQty(this.value)" aria-label="Cantidad global" />
+        <span></span>
+      </div>
       <div id="products"></div>
     </div>
 

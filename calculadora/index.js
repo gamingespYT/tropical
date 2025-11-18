@@ -24,10 +24,8 @@ function renderProducts() {
     div.className = "product";
     div.innerHTML = `
       <span>${p.name}${p.car} - ${p.price}€</span>
-      <div class="add-controls">
-        <input type="number" id="qty-${i}" value="1" min="1" class="qty-input">
-        <button onclick="addToCart(${i})">Añadir</button>
-      </div>
+      <input type="number" id="qty-${i}" value="1" min="1" class="qty-input">
+      <button onclick="addToCart(${i})">Añadir</button>
     `;
     container.appendChild(div);
   });
@@ -128,9 +126,9 @@ function updateList() {
       const btn = document.getElementById('employee-btn');
       if (btn) btn.classList.remove('active');
     } else {
-      // calcular descuento del 25%
-      const discountAmount = Math.round((total * 0.25) * 100) / 100;
-      const totalAfter = Math.round((total - discountAmount) * 100) / 100;
+  // calcular descuento del 25% con redondeo hacia arriba
+  const discountAmount = Math.ceil(total * 0.25);
+  const totalAfter = total - discountAmount;
 
       // Añadir línea en el listado indicando el descuento
       const discountRow = document.createElement('div');
@@ -166,8 +164,9 @@ function copyList() {
     for (let key in cart) {
       total += cart[key].qty * cart[key].price;
     }
-    const discountAmount = Math.round((total * 0.25) * 100) / 100;
-    const totalAfter = Math.round((total - discountAmount) * 100) / 100;
+    // Redondeo hacia arriba para descuento
+    const discountAmount = Math.ceil(total * 0.25);
+    const totalAfter = total - discountAmount;
     text += `Descuento empleados (25%): -${discountAmount}€\n`;
     text += `Total: ${totalAfter}€\n`;
   }
@@ -193,6 +192,10 @@ function resetCart() {
     const input = document.getElementById(`qty-${i}`);
     if (input) input.value = 1;
   });
+
+  // Resetear input global
+  const global = document.getElementById('global-qty');
+  if (global) global.value = 1;
 
   showNotification("🔄 Carrito reseteado y cantidades restauradas");
 }
@@ -224,6 +227,16 @@ function showNotification(message) {
   setTimeout(() => {
     notification.classList.remove("show");
   }, 3000);
+}
+
+// Establecer cantidad global para todos los inputs de producto
+function setGlobalQty(value) {
+  const num = parseInt(value, 10);
+  if (isNaN(num) || num < 1) return;
+  products.forEach((_, i) => {
+    const input = document.getElementById(`qty-${i}`);
+    if (input) input.value = num;
+  });
 }
 
 renderProducts();

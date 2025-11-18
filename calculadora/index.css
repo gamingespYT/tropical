@@ -60,10 +60,32 @@ h2 {
   padding-bottom: 5px;
 }
 
-.product {
-  display: flex;
-  justify-content: space-between;
+/* Encabezado de Productos con input global a la derecha */
+.products-header {
+  display: grid;
+  grid-template-columns: 1fr auto auto; /* nombre | qty | botón */
   align-items: center;
+  column-gap: 8px;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 3px solid #2c3e50;
+}
+
+.products-header h2 {
+  margin: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.products-header .qty-input {
+  justify-self: center;
+}
+
+.product {
+  display: grid;
+  grid-template-columns: 1fr auto auto; /* nombre | qty | botón */
+  align-items: center;
+  column-gap: 8px;
   margin: 10px 0;
   padding: 10px 0;
   border-bottom: 1px solid #ddd;
@@ -73,10 +95,8 @@ h2 {
   border-bottom: none;
 }
 
-.add-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+#global-qty{
+  margin-right: 210%;
 }
 
 .qty-input {
@@ -88,6 +108,11 @@ h2 {
   font-size: 1rem;
 }
 
+/* Alinear el input de cantidad al centro de su columna en la grid */
+.product .qty-input {
+  justify-self: center;
+}
+
 .product button {
   background: #2ecc71;
   color: white;
@@ -96,6 +121,7 @@ h2 {
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.3s;
+  justify-self: end; /* alinear botón en su columna */
 }
 
 .product button:hover {
