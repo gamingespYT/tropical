@@ -38,13 +38,28 @@
       <div id="cart" class="cart">Añade ingredientes o packs para generar la lista...</div>
       <div id="total" class="total">Total: 0€</div>
       <div class="buttons">
-        <button onclick="copyList()">📋 Copiar Lista</button>
+        <button onclick="generateCode()">🔗 Generar Código</button>
+        <button onclick="openLoadDialog()">🛜 Cargar Lista</button>
         <button onclick="resetCart()">🔄 Reset</button>
       </div>
     </section>
   </main>
 
   <div id="notification" class="notification"></div>
+  
+  <!-- Diálogo para cargar código -->
+  <div id="loadDialog" class="dialog-overlay">
+    <div class="dialog">
+      <h2>📥 Cargar Lista desde Código</h2>
+      <p>Pega el código que te han compartido:</p>
+      <textarea id="codeInput" placeholder="Pega el código aquí..."></textarea>
+      <div class="dialog-buttons">
+        <button onclick="loadFromCode()" class="primary-btn">✅ Cargar</button>
+        <button onclick="closeLoadDialog()" class="secondary-btn">❌ Cancelar</button>
+      </div>
+    </div>
+  </div>
+
   <script src="index.js"></script>
 </body>
 </html>
