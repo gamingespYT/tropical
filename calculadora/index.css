@@ -18,11 +18,34 @@ body {
 header {
   text-align: center;
   margin-bottom: 20px;
+  position: relative;
+  width: 100%;
 }
 
 header img {
   max-height: 80px;
   margin: 10px;
+}
+
+.logout-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 15px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+.logout-btn:hover {
+  background: #c0392b;
+  transform: scale(1.05);
 }
 
 /* Ensure header images and any images scale on small screens */

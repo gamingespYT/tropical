@@ -204,6 +204,8 @@ img { max-width: 100%; height: auto; }
 
   .btn {
     width: 100%;
+    padding: 12px 20px;
+    font-size: 0.95rem;
   }
 }
 
@@ -214,4 +216,9 @@ img { max-width: 100%; height: auto; }
   .sun { right: 6%; top: 6%; }
   .palms { font-size: 1.4rem; bottom: 6%; left: 6%; }
   .emoji { display: none; } /* reduce clutter on very small screens */
+  
+  .btn {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
 }
