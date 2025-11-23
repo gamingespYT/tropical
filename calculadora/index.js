@@ -60,6 +60,17 @@ function removeFromCart(index) {
   updateList();
 }
 
+function deleteFromCart(index) {
+  const product = products[index];
+
+  if (cart[product.name]) {
+    delete cart[product.name];
+    showNotification(`🗑️ ${product.name} eliminado del carrito`);
+  }
+
+  updateList();
+}
+
 function updateList() {
   const listEl = document.getElementById("list");
   const totalEl = document.getElementById("total");
@@ -89,6 +100,7 @@ function updateList() {
           <div class="list-controls">
             <button onclick="addToCart(${i}, true)">➕</button>
             <button onclick="removeFromCart(${i})">➖</button>
+            <button onclick="deleteFromCart(${i})" class="delete-btn" title="Eliminar línea">🗑️</button>
           </div>
         `;
         listEl.appendChild(row);
@@ -108,6 +120,7 @@ function updateList() {
           <div class="list-controls">
             <button onclick="addToCart(${i}, true)">➕</button>
             <button onclick="removeFromCart(${i})">➖</button>
+            <button onclick="deleteFromCart(${i})" class="delete-btn" title="Eliminar línea">🗑️</button>
           </div>
         `;
         listEl.appendChild(row);
@@ -126,9 +139,9 @@ function updateList() {
       const btn = document.getElementById('employee-btn');
       if (btn) btn.classList.remove('active');
     } else {
-  // calcular descuento del 25% con redondeo hacia arriba
-  const discountAmount = Math.ceil(total * 0.25);
-  const totalAfter = total - discountAmount;
+      // calcular descuento del 25% con redondeo hacia arriba
+      const discountAmount = Math.ceil(total * 0.25);
+      const totalAfter = total - discountAmount;
 
       // Añadir línea en el listado indicando el descuento
       const discountRow = document.createElement('div');
@@ -245,7 +258,7 @@ function openInvoiceDialog() {
     showNotification("⚠️ No hay productos en el carrito");
     return;
   }
-  
+
   const dialog = document.getElementById('invoice-dialog');
   if (dialog) {
     dialog.showModal();
@@ -263,16 +276,16 @@ function closeInvoiceDialog() {
 
 function generateInvoice(event) {
   event.preventDefault();
-  
+
   const name = document.getElementById('invoice-name').value.trim();
   const surname = document.getElementById('invoice-surname').value.trim();
   const phone = document.getElementById('invoice-phone').value.trim();
-  
+
   if (!name || !surname || !phone) {
     showNotification("⚠️ Por favor, completa todos los campos");
     return;
   }
-  
+
   // Preparar datos de la factura
   const invoiceData = {
     name: name,
@@ -282,14 +295,14 @@ function generateInvoice(event) {
     employeeDiscount: employeeDiscount,
     date: new Date().toISOString()
   };
-  
+
   // Añadir productos del carrito
   let total = 0;
   for (let key in cart) {
     const item = cart[key];
     const subtotal = item.qty * item.price;
     total += subtotal;
-    
+
     invoiceData.items.push({
       name: item.name,
       qty: item.qty,
@@ -297,9 +310,9 @@ function generateInvoice(event) {
       subtotal: subtotal
     });
   }
-  
+
   invoiceData.total = total;
-  
+
   // Calcular descuento si aplica
   if (employeeDiscount && !cart["Pack Poli"]) {
     const discountAmount = Math.ceil(total * 0.25);
@@ -308,19 +321,19 @@ function generateInvoice(event) {
   } else {
     invoiceData.finalTotal = total;
   }
-  
+
   // Codificar datos en base64 para URL
   const encodedData = btoa(encodeURIComponent(JSON.stringify(invoiceData)));
-  
+
   // Generar URL de la factura
   const invoiceURL = `${window.location.origin}${window.location.pathname.replace('calculadora/index.html', 'facturas/index.html').replace('calculadora/', '../facturas/')}?data=${encodedData}`;
-  
+
   // Abrir en nueva pestaña
   window.open(invoiceURL, '_blank');
-  
+
   // Cerrar diálogo
   closeInvoiceDialog();
-  
+
   showNotification("✅ Factura generada correctamente");
 }
 

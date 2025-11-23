@@ -204,6 +204,14 @@ h2 {
   box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
+.list-controls button.delete-btn {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+.list-controls button.delete-btn:hover {
+  background: linear-gradient(135deg, #c0392b, #a93226);
+}
+
 
 .total {
   margin-top: 15px;
