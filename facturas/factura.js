@@ -3,7 +3,7 @@ function getInvoiceData() {
   const urlParams = new URLSearchParams(window.location.search);
   const encodedData = urlParams.get('data');
   const invoiceCode = urlParams.get('codigo');
-  
+
   // Si hay código de factura, usarlo directamente
   if (invoiceCode) {
     try {
@@ -15,12 +15,12 @@ function getInvoiceData() {
       return null;
     }
   }
-  
+
   if (!encodedData) {
     showSearchInterface();
     return null;
   }
-  
+
   try {
     const decodedData = JSON.parse(decodeURIComponent(atob(encodedData)));
     return decodedData;
@@ -286,7 +286,7 @@ function showSearchInterface() {
       }
     </style>
   `;
-  
+
   // Mostrar facturas guardadas
   displayRecentInvoices();
 }
@@ -295,9 +295,9 @@ function showSearchInterface() {
 function displayRecentInvoices() {
   const recentList = document.getElementById('recent-list');
   if (!recentList) return;
-  
+
   const invoices = [];
-  
+
   // Obtener todas las facturas del localStorage
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
@@ -311,15 +311,15 @@ function displayRecentInvoices() {
       }
     }
   }
-  
+
   // Ordenar por fecha (más recientes primero)
   invoices.sort((a, b) => new Date(b.date) - new Date(a.date));
-  
+
   if (invoices.length === 0) {
     recentList.innerHTML = '<p class="no-recent">No hay facturas guardadas</p>';
     return;
   }
-  
+
   recentList.innerHTML = invoices.map(inv => {
     const code = btoa(encodeURIComponent(JSON.stringify(inv)));
     return `
@@ -343,12 +343,12 @@ function deleteInvoice(storageKey) {
   if (!confirm('¿Estás seguro de que quieres eliminar esta factura?')) {
     return;
   }
-  
+
   localStorage.removeItem(storageKey);
-  
+
   // Actualizar la lista
   displayRecentInvoices();
-  
+
   // Mostrar notificación
   const resultDiv = document.getElementById('search-result');
   if (resultDiv) {
@@ -369,7 +369,7 @@ function clearAllInvoices() {
   if (!confirm('¿Estás seguro de que quieres borrar todas las facturas guardadas? Esta acción no se puede deshacer.')) {
     return;
   }
-  
+
   const keysToDelete = [];
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
@@ -377,12 +377,12 @@ function clearAllInvoices() {
       keysToDelete.push(key);
     }
   }
-  
+
   keysToDelete.forEach(key => localStorage.removeItem(key));
-  
+
   // Actualizar la lista
   displayRecentInvoices();
-  
+
   // Mostrar notificación
   const resultDiv = document.getElementById('search-result');
   if (resultDiv) {
@@ -403,11 +403,11 @@ function searchInvoice(event) {
   event.preventDefault();
   const invoiceCode = document.getElementById('invoice-search').value.trim();
   const resultDiv = document.getElementById('search-result');
-  
+
   try {
     // Intentar decodificar el código
     const decodedData = JSON.parse(decodeURIComponent(atob(invoiceCode)));
-    
+
     // Si es válido, redirigir
     window.location.href = `?codigo=${encodeURIComponent(invoiceCode)}`;
   } catch (error) {
@@ -429,7 +429,7 @@ function generateInvoiceNumber() {
   const hours = String(now.getHours()).padStart(2, '0');
   const minutes = String(now.getMinutes()).padStart(2, '0');
   const seconds = String(now.getSeconds()).padStart(2, '0');
-  
+
   return `TH-${year}${month}${day}-${hours}${minutes}${seconds}`;
 }
 
@@ -441,32 +441,32 @@ function formatDate(dateString) {
   const year = date.getFullYear();
   const hours = String(date.getHours()).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
-  
+
   return `${day}/${month}/${year} - ${hours}:${minutes}`;
 }
 
 // Llenar la factura con los datos
 function populateInvoice() {
   const data = getInvoiceData();
-  
+
   if (!data) return;
-  
+
   // Generar o usar número de factura existente
   const invoiceNumber = data.invoiceNumber || generateInvoiceNumber();
-  
+
   // Generar código portable (Base64) de la factura
   if (!data.invoiceNumber) {
     data.invoiceNumber = invoiceNumber;
   }
   const invoiceCode = btoa(encodeURIComponent(JSON.stringify(data)));
-  
+
   // Verificar si la factura ya está guardada
   const isAlreadySaved = localStorage.getItem(`invoice_${invoiceNumber}`) !== null;
-  
+
   // Si es nueva (no tiene invoiceNumber previo), guardar automáticamente
   const urlParams = new URLSearchParams(window.location.search);
   const isFromCalculator = urlParams.get('data') !== null; // Viene directamente de la calculadora
-  
+
   if (isFromCalculator && !isAlreadySaved) {
     // Guardar automáticamente las facturas nuevas generadas desde la calculadora
     try {
@@ -481,19 +481,19 @@ function populateInvoice() {
       saveBtn.style.display = 'inline-block';
     }
   }
-  
+
   // Información de la factura
   document.getElementById('invoice-number').textContent = invoiceNumber;
   document.getElementById('invoice-date').textContent = formatDate(data.date);
-  
+
   // Información del cliente
   document.getElementById('customer-name').textContent = `${data.name} ${data.surname}`;
   document.getElementById('customer-phone').textContent = data.phone;
-  
+
   // Productos
   const itemsBody = document.getElementById('items-body');
   itemsBody.innerHTML = '';
-  
+
   data.items.forEach(item => {
     const row = document.createElement('tr');
     row.innerHTML = `
@@ -504,20 +504,35 @@ function populateInvoice() {
     `;
     itemsBody.appendChild(row);
   });
-  
+
   // Totales
   document.getElementById('subtotal-amount').textContent = `${data.total}€`;
-  
+
   if (data.discount && data.discount > 0) {
     document.getElementById('discount-row').style.display = 'flex';
+
+    // Determinar el texto del descuento según el tipo
+    let discountLabel = '';
+    if (data.discountType === 'employee') {
+      discountLabel = 'Descuento empleados (25%):';
+    } else if (data.discountType === 'custom') {
+      // Usar el formato nuevo: "Descuento [Motivo] (X%)" o "Descuento personalizado (X%)"
+      if (data.customDiscountReason) {
+        discountLabel = `Descuento ${data.customDiscountReason} (${data.customDiscountPercent}%):`;
+      } else {
+        discountLabel = `Descuento personalizado (${data.customDiscountPercent}%):`;
+      }
+    }
+
+    document.getElementById('discount-label').textContent = discountLabel;
     document.getElementById('discount-amount').textContent = `-${data.discount}€`;
   }
-  
+
   document.getElementById('final-amount').textContent = `${data.finalTotal}€`;
-  
+
   // Actualizar el título de la página
   document.title = `Factura ${invoiceNumber} - Tropical Heights`;
-  
+
   // Guardar el código de factura y los datos para poder usarlos
   window.currentInvoiceCode = invoiceCode;
   window.currentInvoiceData = data;
@@ -530,17 +545,17 @@ function saveInvoiceManually() {
     showCodeNotification('⚠️ No hay datos de factura para guardar', 'error');
     return;
   }
-  
+
   try {
     // Guardar en localStorage
     localStorage.setItem(`invoice_${window.currentInvoiceNumber}`, JSON.stringify(window.currentInvoiceData));
-    
+
     // Ocultar el botón de guardar
     const saveBtn = document.getElementById('save-btn');
     if (saveBtn) {
       saveBtn.style.display = 'none';
     }
-    
+
     showCodeNotification('✅ Factura guardada correctamente', 'success');
   } catch (error) {
     console.error('Error al guardar factura:', error);
@@ -554,7 +569,7 @@ function copyInvoiceCode() {
     showCodeNotification('⚠️ No hay código de factura disponible', 'error');
     return;
   }
-  
+
   navigator.clipboard.writeText(window.currentInvoiceCode).then(() => {
     showCodeNotification('✅ Código de factura copiado. Puedes usarlo en cualquier navegador/dispositivo', 'success');
   }).catch(err => {
@@ -567,10 +582,10 @@ function copyInvoiceCode() {
 function showCodeNotification(message, type) {
   const notification = document.getElementById('code-notification');
   if (!notification) return;
-  
+
   notification.textContent = message;
   notification.className = `code-notification ${type} show`;
-  
+
   setTimeout(() => {
     notification.classList.remove('show');
   }, 4000);
@@ -582,18 +597,18 @@ async function downloadAsPNG() {
   const buttons = document.querySelector('.print-button-container');
   const notification = document.getElementById('code-notification');
   const backHome = document.querySelector('.back-home');
-  
+
   // Ocultar botones, notificación y botón flotante temporalmente
   buttons.style.display = 'none';
   if (notification) notification.style.display = 'none';
   if (backHome) backHome.style.display = 'none';
-  
+
   showCodeNotification('⏳ Generando imagen...', 'success');
-  
+
   try {
     // Esperar un poco para que se oculten los elementos
     await new Promise(resolve => setTimeout(resolve, 100));
-    
+
     const canvas = await html2canvas(invoiceContainer, {
       scale: 2, // Mayor calidad
       backgroundColor: '#ffffff',
@@ -601,7 +616,7 @@ async function downloadAsPNG() {
       useCORS: true,
       allowTaint: true
     });
-    
+
     // Convertir a blob y descargar
     canvas.toBlob((blob) => {
       const url = URL.createObjectURL(blob);
@@ -611,10 +626,10 @@ async function downloadAsPNG() {
       link.href = url;
       link.click();
       URL.revokeObjectURL(url);
-      
+
       showCodeNotification('✅ Imagen descargada correctamente', 'success');
     }, 'image/png');
-    
+
   } catch (error) {
     console.error('Error al generar PNG:', error);
     showCodeNotification('❌ Error al generar la imagen', 'error');

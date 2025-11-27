@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,16 +9,20 @@
   <link rel="stylesheet" href="factura.css?v=1.0">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
+
 <body>
   <a href="../index.html" class="back-home" aria-label="Volver al inicio">
-    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="black" class="bi bi-arrow-bar-left" viewBox="0 0 16 16">
-      <path fill-rule="evenodd" d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5"/>
+    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="black" class="bi bi-arrow-bar-left"
+      viewBox="0 0 16 16">
+      <path fill-rule="evenodd"
+        d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5" />
     </svg>
   </a>
   <div class="invoice-container">
     <div class="invoice-header">
       <div class="logo-section">
-        <img src="https://gamingespyt.github.io/gamingesp/img/Tropical_Heights.png" alt="Logo Tropical Heights" class="main-logo">
+        <img src="https://gamingespyt.github.io/gamingesp/img/Tropical_Heights.png" alt="Logo Tropical Heights"
+          class="main-logo">
         <h1>Tropical Heights</h1>
       </div>
       <div class="invoice-info">
@@ -68,7 +73,7 @@
         <span id="subtotal-amount"></span>
       </div>
       <div class="total-row discount-row" id="discount-row" style="display: none;">
-        <span>Descuento Empleados (25%):</span>
+        <span id="discount-label"></span>
         <span id="discount-amount"></span>
       </div>
       <div class="total-row final-row">
@@ -82,15 +87,17 @@
     </div>
 
     <div class="print-button-container">
-      <button id="save-btn" onclick="saveInvoiceManually()" class="save-btn" style="display: none;">💾 Guardar Factura</button>
+      <button id="save-btn" onclick="saveInvoiceManually()" class="save-btn" style="display: none;">💾 Guardar
+        Factura</button>
       <button onclick="copyInvoiceCode()" class="code-btn">📋 Copiar Código</button>
       <button onclick="downloadAsPNG()" class="png-btn">🖨️ Imprimir Factura</button>
       <button onclick="window.location.href='index.html'" class="back-btn">✖️ Cerrar</button>
     </div>
-    
+
     <div id="code-notification" class="code-notification"></div>
   </div>
 
-  <script src="factura.js"></script>
+  <script src="factura.js?v=1.0"></script>
 </body>
+
 </html>
