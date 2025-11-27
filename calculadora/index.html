@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,10 +14,13 @@
   <link rel="stylesheet" href="index.css?v=1.2">
   <script src="../auth.js"></script>
 </head>
+
 <body style="display: none;">
   <a href="../index.html" class="back-home" aria-label="Volver al inicio">
-    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="black" class="bi bi-arrow-bar-left" viewBox="0 0 16 16">
-      <path fill-rule="evenodd" d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5"/>
+    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="black" class="bi bi-arrow-bar-left"
+      viewBox="0 0 16 16">
+      <path fill-rule="evenodd"
+        d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5" />
     </svg>
   </a>
   <header>
@@ -29,7 +33,8 @@
     <div class="products-container">
       <div class="products-header">
         <h2>Productos</h2>
-        <input type="number" id="global-qty" class="qty-input" min="1" value="1" oninput="setGlobalQty(this.value)" aria-label="Cantidad global" />
+        <input type="number" id="global-qty" class="qty-input" min="1" value="1" oninput="setGlobalQty(this.value)"
+          aria-label="Cantidad global" />
         <span></span>
       </div>
       <div id="products"></div>
@@ -41,8 +46,22 @@
       <div class="total" id="total">Total: 0€</div>
       <div class="buttons">
         <button class="copy-btn" onclick="copyList()">📋 Copiar</button>
-        <button id="employee-btn" class="employee-btn" onclick="toggleEmployeeDiscount()">👥 Descuento empleados</button>
+        <button id="employee-btn" class="employee-btn" onclick="toggleEmployeeDiscount()">👥 Descuento
+          empleados</button>
+        <button id="custom-discount-btn" class="custom-discount-btn" onclick="toggleCustomDiscount()">💰 Descuento
+          personalizado</button>
         <button class="reset-btn" onclick="resetCart()">🔄 Reset</button>
+      </div>
+      <div id="custom-discount-panel" class="custom-discount-panel" style="display: none;">
+        <label for="custom-discount-input">Porcentaje de descuento:</label>
+        <div class="discount-input-group">
+          <input type="number" id="custom-discount-input" min="0" max="100" step="1" placeholder="0" />
+          <span>%</span>
+          <button onclick="applyCustomDiscount()">Aplicar</button>
+        </div>
+        <label for="custom-discount-reason" style="margin-top: 10px;">Motivo (opcional):</label>
+        <input type="text" id="custom-discount-reason" placeholder="Ej: Cliente VIP, Promoción especial..."
+          maxlength="100" />
       </div>
       <button class="invoice-btn" onclick="openInvoiceDialog()">🧾 Generar Factura</button>
     </div>
@@ -77,4 +96,5 @@
 
   <script src="index.js"></script>
 </body>
+
 </html>

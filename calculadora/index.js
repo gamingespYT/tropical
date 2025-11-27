@@ -14,6 +14,8 @@
 
 const cart = {};
 let employeeDiscount = false; // estado del descuento de empleados
+let customDiscountPercent = 0; // porcentaje de descuento personalizado
+let customDiscountReason = ''; // motivo del descuento personalizado
 
 function renderProducts() {
   const container = document.getElementById("products");
@@ -154,6 +156,33 @@ function updateList() {
     }
   }
 
+  // Comprobar y aplicar descuento personalizado si está activo
+  if (customDiscountPercent > 0) {
+    if (hasPackPoli) {
+      // No se permite con Pack Poli
+      showNotification("⚠️ El descuento no se puede aplicar con el Pack Poli");
+      customDiscountPercent = 0;
+      const btn = document.getElementById('custom-discount-btn');
+      if (btn) btn.classList.remove('active');
+      const panel = document.getElementById('custom-discount-panel');
+      if (panel) panel.style.display = 'none';
+    } else {
+      // calcular descuento personalizado con redondeo hacia arriba
+      const discountAmount = Math.ceil(total * (customDiscountPercent / 100));
+      const totalAfter = total - discountAmount;
+
+      // Añadir línea en el listado indicando el descuento
+      const discountRow = document.createElement('div');
+      discountRow.className = 'list-item discount';
+      const reasonText = customDiscountReason ? ` - ${customDiscountReason}` : '';
+      discountRow.innerHTML = `<span class="item-info">Descuento personalizado (${customDiscountPercent}%)${reasonText}</span><span class="item-info">- ${discountAmount}€</span>`;
+      listEl.appendChild(discountRow);
+
+      totalEl.textContent = `Total: ${totalAfter}€ (Descuento ${customDiscountPercent}%)`;
+      return;
+    }
+  }
+
   totalEl.textContent = `Total: ${total}€`;
 }
 
@@ -182,6 +211,17 @@ function copyList() {
     const totalAfter = total - discountAmount;
     text += `Descuento empleados (25%): -${discountAmount}€\n`;
     text += `Total: ${totalAfter}€\n`;
+  } else if (customDiscountPercent > 0 && !hasPackPoli) {
+    // calcular total y descuento personalizado para incluir en copia
+    let total = 0;
+    for (let key in cart) {
+      total += cart[key].qty * cart[key].price;
+    }
+    const discountAmount = Math.ceil(total * (customDiscountPercent / 100));
+    const totalAfter = total - discountAmount;
+    const reasonText = customDiscountReason ? ` - ${customDiscountReason}` : '';
+    text += `Descuento personalizado (${customDiscountPercent}%)${reasonText}: -${discountAmount}€\n`;
+    text += `Total: ${totalAfter}€\n`;
   }
 
   navigator.clipboard.writeText(text).then(() => {
@@ -199,6 +239,18 @@ function resetCart() {
   employeeDiscount = false;
   const btn = document.getElementById('employee-btn');
   if (btn) btn.classList.remove('active');
+
+  // resetear estado de descuento personalizado
+  customDiscountPercent = 0;
+  customDiscountReason = '';
+  const customBtn = document.getElementById('custom-discount-btn');
+  if (customBtn) customBtn.classList.remove('active');
+  const customPanel = document.getElementById('custom-discount-panel');
+  if (customPanel) customPanel.style.display = 'none';
+  const customInput = document.getElementById('custom-discount-input');
+  if (customInput) customInput.value = '';
+  const reasonInput = document.getElementById('custom-discount-reason');
+  if (reasonInput) reasonInput.value = '';
 
   // 🔄 Resetear los inputs de cantidad a 1
   products.forEach((_, i) => {
@@ -293,6 +345,8 @@ function generateInvoice(event) {
     phone: phone,
     items: [],
     employeeDiscount: employeeDiscount,
+    customDiscountPercent: customDiscountPercent,
+    customDiscountReason: customDiscountReason,
     date: new Date().toISOString()
   };
 
@@ -317,6 +371,12 @@ function generateInvoice(event) {
   if (employeeDiscount && !cart["Pack Poli"]) {
     const discountAmount = Math.ceil(total * 0.25);
     invoiceData.discount = discountAmount;
+    invoiceData.discountType = 'employee';
+    invoiceData.finalTotal = total - discountAmount;
+  } else if (customDiscountPercent > 0 && !cart["Pack Poli"]) {
+    const discountAmount = Math.ceil(total * (customDiscountPercent / 100));
+    invoiceData.discount = discountAmount;
+    invoiceData.discountType = 'custom';
     invoiceData.finalTotal = total - discountAmount;
   } else {
     invoiceData.finalTotal = total;
@@ -335,6 +395,73 @@ function generateInvoice(event) {
   closeInvoiceDialog();
 
   showNotification("✅ Factura generada correctamente");
+}
+
+// Toggle para descuento personalizado
+function toggleCustomDiscount() {
+  const panel = document.getElementById('custom-discount-panel');
+  const btn = document.getElementById('custom-discount-btn');
+
+  if (panel.style.display === 'none' || panel.style.display === '') {
+    // Verificar si hay Pack Poli en el carrito
+    const hasPackPoli = !!cart["Pack Poli"];
+    if (hasPackPoli) {
+      showNotification("⚠️ No se puede activar el descuento con el Pack Poli en el carrito");
+      return;
+    }
+
+    // Desactivar descuento de empleados si está activo
+    if (employeeDiscount) {
+      employeeDiscount = false;
+      const empBtn = document.getElementById('employee-btn');
+      if (empBtn) empBtn.classList.remove('active');
+    }
+
+    panel.style.display = 'block';
+    btn.classList.add('active');
+  } else {
+    panel.style.display = 'none';
+    btn.classList.remove('active');
+    customDiscountPercent = 0;
+    customDiscountReason = '';
+    const input = document.getElementById('custom-discount-input');
+    if (input) input.value = '';
+    const reasonInput = document.getElementById('custom-discount-reason');
+    if (reasonInput) reasonInput.value = '';
+    updateList();
+  }
+}
+
+// Aplicar descuento personalizado
+function applyCustomDiscount() {
+  const input = document.getElementById('custom-discount-input');
+  const value = parseFloat(input.value);
+
+  if (isNaN(value) || value < 0 || value > 100) {
+    showNotification("⚠️ Por favor, introduce un porcentaje válido (0-100)");
+    return;
+  }
+
+  // Verificar si hay Pack Poli en el carrito
+  const hasPackPoli = !!cart["Pack Poli"];
+  if (hasPackPoli) {
+    showNotification("⚠️ No se puede aplicar el descuento con el Pack Poli en el carrito");
+    return;
+  }
+
+  customDiscountPercent = value;
+
+  // Capturar el motivo (opcional)
+  const reasonInput = document.getElementById('custom-discount-reason');
+  customDiscountReason = reasonInput ? reasonInput.value.trim() : '';
+
+  if (value === 0) {
+    showNotification("🔔 Descuento personalizado desactivado");
+  } else {
+    showNotification(`✅ Descuento personalizado del ${value}% aplicado`);
+  }
+
+  updateList();
 }
 
 renderProducts();
