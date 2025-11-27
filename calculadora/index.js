@@ -174,8 +174,8 @@ function updateList() {
       // Añadir línea en el listado indicando el descuento
       const discountRow = document.createElement('div');
       discountRow.className = 'list-item discount';
-      const reasonText = customDiscountReason ? ` - ${customDiscountReason}` : '';
-      discountRow.innerHTML = `<span class="item-info">Descuento personalizado (${customDiscountPercent}%)${reasonText}</span><span class="item-info">- ${discountAmount}€</span>`;
+      const discountLabel = customDiscountReason ? `Descuento ${customDiscountReason} (${customDiscountPercent}%)` : `Descuento personalizado (${customDiscountPercent}%)`;
+      discountRow.innerHTML = `<span class="item-info">${discountLabel}</span><span class="item-info">- ${discountAmount}€</span>`;
       listEl.appendChild(discountRow);
 
       totalEl.textContent = `Total: ${totalAfter}€ (Descuento ${customDiscountPercent}%)`;
@@ -219,8 +219,8 @@ function copyList() {
     }
     const discountAmount = Math.ceil(total * (customDiscountPercent / 100));
     const totalAfter = total - discountAmount;
-    const reasonText = customDiscountReason ? ` - ${customDiscountReason}` : '';
-    text += `Descuento personalizado (${customDiscountPercent}%)${reasonText}: -${discountAmount}€\n`;
+    const discountLabel = customDiscountReason ? `Descuento ${customDiscountReason} (${customDiscountPercent}%)` : `Descuento personalizado (${customDiscountPercent}%)`;
+    text += `${discountLabel}: -${discountAmount}€\n`;
     text += `Total: ${totalAfter}€\n`;
   }
 
