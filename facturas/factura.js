@@ -108,6 +108,30 @@ const PRODUCT_MAP = {
   'PP': 'Pack Poli'
 };
 
+// Búsqueda inversa: nombre -> id (si existe)
+function findProductIdByName(name) {
+  for (const k in PRODUCT_MAP) {
+    if (PRODUCT_MAP[k] === name) return k;
+  }
+  return null;
+}
+
+// Construir el compact v2 desde un objeto de datos (para copia siempre en formato nuevo)
+function buildCompactInvoice(data) {
+  const dateMs = Date.parse(data.date) || Date.now();
+  let dType = 'n';
+  if (data.discountType === 'employee') dType = 'e';
+  else if (data.discountType === 'custom') dType = 'c';
+  const itemsStr = (data.items || []).map(it => {
+    const id = it.id || findProductIdByName(it.name) || (it.name ? it.name.replaceAll(/\s+/g, '') : 'X');
+    return `${id}~${it.qty || 0}~${it.price || 0}~${it.subtotal || 0}`;
+  }).join(',');
+  const customPercent = data.customDiscountPercent || 0;
+  const customReason = data.customDiscountReason || '';
+  const compact = [dateMs, data.name || '', data.surname || '', data.phone || '', data.total || 0, data.discount || 0, dType, data.finalTotal || 0, data.invoiceNumber || '', customPercent, encodeURIComponent(customReason), itemsStr].join('|');
+  return 'v2:' + encodeURIComponent(compact);
+}
+
 // Mostrar interfaz de búsqueda
 function showSearchInterface() {
   document.body.innerHTML = `
@@ -380,8 +404,21 @@ function displayRecentInvoices() {
     const key = localStorage.key(i);
     if (key.startsWith('invoice_')) {
       try {
-        const invoice = JSON.parse(localStorage.getItem(key));
+        const raw = localStorage.getItem(key);
+        const invoice = JSON.parse(raw);
         invoice.storageKey = key;
+
+        // Migración: si no tiene compactCode, calcularlo y reescribir el item para mantener el nuevo formato
+        if (!invoice.compactCode) {
+          try {
+            invoice.compactCode = buildCompactInvoice(invoice);
+            localStorage.setItem(key, JSON.stringify(invoice));
+          } catch (e) {
+            // no bloquear la carga si falla la migración
+            console.warn('No se pudo migrar factura a compactCode:', key, e);
+          }
+        }
+
         invoices.push(invoice);
       } catch (error) {
         console.error('Error al cargar factura:', error);
@@ -398,10 +435,11 @@ function displayRecentInvoices() {
   }
 
   recentList.innerHTML = invoices.map(inv => {
-    const code = btoa(encodeURIComponent(JSON.stringify(inv)));
+    // Generar enlace en formato compacto v2 (más corto)
+    const code = buildCompactInvoice(inv);
     return `
       <div class="recent-item">
-        <div class="recent-item-info" onclick="window.location.href='?codigo=${encodeURIComponent(code)}'">
+        <div class="recent-item-info" onclick="window.location.href='?data=${code}'">
           <div class="recent-item-number">${inv.invoiceNumber}</div>
           <div class="recent-item-customer">${inv.name} ${inv.surname}</div>
           <div class="recent-item-date">${formatDate(inv.date)}</div>
@@ -481,11 +519,16 @@ function searchInvoice(event) {
   const invoiceCode = document.getElementById('invoice-search').value.trim();
   const resultDiv = document.getElementById('search-result');
 
+  // Aceptar formato v2 (compact) o formato legacy (Base64)
   try {
-    // Intentar decodificar el código
-    const decodedData = JSON.parse(decodeURIComponent(atob(invoiceCode)));
+    if (invoiceCode.startsWith('v2:')) {
+      window.location.href = `?data=${invoiceCode}`;
+      return;
+    }
 
-    // Si es válido, redirigir
+    // Intentar decodificar el código legacy (Base64)
+    JSON.parse(decodeURIComponent(atob(invoiceCode)));
+    // Si es válido, redirigir usando el parámetro `codigo` (legacy)
     window.location.href = `?codigo=${encodeURIComponent(invoiceCode)}`;
   } catch (error) {
     resultDiv.className = 'search-result error';
@@ -531,11 +574,13 @@ function populateInvoice() {
   // Generar o usar número de factura existente
   const invoiceNumber = data.invoiceNumber || generateInvoiceNumber();
 
-  // Generar código portable (Base64) de la factura
+  // Asegurar número de factura
   if (!data.invoiceNumber) {
     data.invoiceNumber = invoiceNumber;
   }
-  const invoiceCode = btoa(encodeURIComponent(JSON.stringify(data)));
+
+  // Generar código compacto v2 para copia/compartir (siempre en nuevo formato)
+  const invoiceCode = buildCompactInvoice(data);
 
   // Verificar si la factura ya está guardada
   const isAlreadySaved = localStorage.getItem(`invoice_${invoiceNumber}`) !== null;
@@ -547,6 +592,8 @@ function populateInvoice() {
   if (isFromCalculator && !isAlreadySaved) {
     // Guardar automáticamente las facturas nuevas generadas desde la calculadora
     try {
+      // Añadir código compacto v2 dentro del objeto guardado para facilitar compartir/migración
+      try { data.compactCode = buildCompactInvoice(data); } catch (e) { data.compactCode = null; }
       localStorage.setItem(`invoice_${invoiceNumber}`, JSON.stringify(data));
     } catch (error) {
       console.error('Error al guardar factura automáticamente:', error);
@@ -634,6 +681,8 @@ function saveInvoiceManually() {
   }
 
   try {
+    // Asegurar que guardamos también el código compacto v2 dentro del objeto
+    try { window.currentInvoiceData.compactCode = buildCompactInvoice(window.currentInvoiceData); } catch (e) { window.currentInvoiceData.compactCode = null; }
     // Guardar en localStorage
     localStorage.setItem(`invoice_${window.currentInvoiceNumber}`, JSON.stringify(window.currentInvoiceData));
 
