@@ -4,9 +4,15 @@ function getInvoiceData() {
   const encodedData = urlParams.get('data');
   const invoiceCode = urlParams.get('codigo');
 
-  // Si hay código de factura, usarlo directamente
+  // Si hay código de factura (parámetro `codigo`), usarlo directamente
   if (invoiceCode) {
+    // Compatibilidad: soportar formato antiguo (Base64) y nuevo (v2 compact)
     try {
+      if (invoiceCode.startsWith('v2:')) {
+        const compact = decodeURIComponent(invoiceCode.slice(3));
+        return parseCompactInvoice(compact);
+      }
+
       const decodedData = JSON.parse(decodeURIComponent(atob(invoiceCode)));
       return decodedData;
     } catch (error) {
@@ -22,6 +28,12 @@ function getInvoiceData() {
   }
 
   try {
+    // Compatibilidad: si viene en formato v2 (compact), parsear manualmente
+    if (encodedData && encodedData.startsWith('v2:')) {
+      const compact = decodeURIComponent(encodedData.slice(3));
+      return parseCompactInvoice(compact);
+    }
+
     const decodedData = JSON.parse(decodeURIComponent(atob(encodedData)));
     return decodedData;
   } catch (error) {
@@ -30,6 +42,71 @@ function getInvoiceData() {
     return null;
   }
 }
+
+// Parseador del formato compacto v2 (creado para URLs muy cortas)
+function parseCompactInvoice(compact) {
+  // campoSep = '|', itemSep = ',', itemFieldSep = '~'
+  const parts = compact.split('|');
+  try {
+    const dateMs = parseInt(parts[0], 10) || Date.now();
+    const name = decodeURIComponent(parts[1] || '');
+    const surname = decodeURIComponent(parts[2] || '');
+    const phone = decodeURIComponent(parts[3] || '');
+    const total = Number(parts[4]) || 0;
+    const discount = Number(parts[5]) || 0;
+    const dTypeLetter = parts[6] || 'n';
+    const discountType = dTypeLetter === 'e' ? 'employee' : (dTypeLetter === 'c' ? 'custom' : 'none');
+    const finalTotal = Number(parts[7]) || total;
+    // itemsRaw is the last field; use pop() to allow '|' inside custom reason
+    const itemsRaw = parts.length ? parts.pop() : '';
+
+    const invoiceNumber = parts[8] || '';
+    const customPercent = Number(parts[9]) || 0;
+    const customReason = parts.length > 10 ? parts.slice(10).join('|') : (parts[10] || '');
+
+    const items = itemsRaw.length === 0 ? [] : itemsRaw.split(',').map(it => {
+      const f = it.split('~');
+      return {
+        id: f[0] || '',
+        qty: Number(f[1]) || 0,
+        price: Number(f[2]) || 0,
+        subtotal: Number(f[3]) || 0
+      };
+    });
+
+    return {
+      date: new Date(dateMs).toISOString(),
+      name: name,
+      surname: surname,
+      phone: phone,
+      items: items,
+      total: total,
+      discount: discount,
+      discountType: discountType,
+      finalTotal: finalTotal,
+      invoiceNumber: invoiceNumber,
+      customDiscountPercent: customPercent,
+      customDiscountReason: decodeURIComponent(customReason || '')
+    };
+  } catch (e) {
+    console.error('Error parsing compact invoice:', e);
+    return null;
+  }
+}
+
+// Mapa de identificadores cortos a nombres completos (para facturas nuevas compactas)
+const PRODUCT_MAP = {
+  'DS': "Diva's Secret",
+  'CR': 'Choco Rumba',
+  'SB': 'Sky Beeze',
+  'DM': 'Dark Moon',
+  'MT': 'Mai Tai',
+  'MWS': 'Mini Wrap de Salmon',
+  'LT': 'Langostinos Tempura',
+  'BT': 'Bocadillo Tropical',
+  'SP': 'Sunset Punch',
+  'PP': 'Pack Poli'
+};
 
 // Mostrar interfaz de búsqueda
 function showSearchInterface() {
@@ -495,9 +572,10 @@ function populateInvoice() {
   itemsBody.innerHTML = '';
 
   data.items.forEach(item => {
+    const displayName = item.name || (item.id && PRODUCT_MAP[item.id]) || item.id || 'Artículo';
     const row = document.createElement('tr');
     row.innerHTML = `
-      <td>${item.name}</td>
+      <td>${displayName}</td>
       <td>${item.qty}</td>
       <td>${item.price}€</td>
       <td><strong>${item.subtotal}€</strong></td>
@@ -508,7 +586,9 @@ function populateInvoice() {
   // Totales
   document.getElementById('subtotal-amount').textContent = `${data.total}€`;
 
-  if (data.discount && data.discount > 0) {
+  // Mostrar descuento si existe o si es personalizado con porcentaje
+  const hasDiscount = (data.discount && data.discount > 0) || (data.discountType === 'custom' && data.customDiscountPercent && data.customDiscountPercent > 0);
+  if (hasDiscount) {
     document.getElementById('discount-row').style.display = 'flex';
 
     // Determinar el texto del descuento según el tipo
@@ -517,15 +597,22 @@ function populateInvoice() {
       discountLabel = 'Descuento empleados (25%):';
     } else if (data.discountType === 'custom') {
       // Usar el formato nuevo: "Descuento [Motivo] (X%)" o "Descuento personalizado (X%)"
+      const pct = data.customDiscountPercent || 0;
       if (data.customDiscountReason) {
-        discountLabel = `Descuento ${data.customDiscountReason} (${data.customDiscountPercent}%):`;
+        discountLabel = `Descuento ${data.customDiscountReason} (${pct}%):`;
       } else {
-        discountLabel = `Descuento personalizado (${data.customDiscountPercent}%):`;
+        discountLabel = `Descuento personalizado (${pct}%):`;
       }
     }
 
+    // Calcular importe del descuento si no viene (compatibilidad)
+    let discountAmount = data.discount || 0;
+    if ((!discountAmount || discountAmount === 0) && data.discountType === 'custom' && data.customDiscountPercent) {
+      discountAmount = Math.ceil((data.total || 0) * (data.customDiscountPercent / 100));
+    }
+
     document.getElementById('discount-label').textContent = discountLabel;
-    document.getElementById('discount-amount').textContent = `-${data.discount}€`;
+    document.getElementById('discount-amount').textContent = `-${discountAmount}€`;
   }
 
   document.getElementById('final-amount').textContent = `${data.finalTotal}€`;

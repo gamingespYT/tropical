@@ -1,15 +1,15 @@
 ﻿const products = [
-  { name: "Diva's Secret", car: "", price: 40, type: "A" },
-  { name: "Choco Rumba", car: "", price: 36, type: "A" },
-  { name: "Sky Beeze", car: "", price: 36, type: "A" },
-  { name: "Dark Moon", car: "", price: 40, type: "A" },
-  { name: "Mai Tai", car: "", price: 40, type: "A" },
-  { name: "Mini Wrap de Salmon", car: "", price: 35, type: "C" },
-  { name: "Langostinos Tempura", car: "", price: 36, type: "C" },
-  { name: "Bocadillo Tropical", car: "", price: 30, type: "C" },
-  { name: "Sunset Punch", car: "", price: 26, type: "B" },
+  { id: 'DS', name: "Diva's Secret", car: "", price: 40, type: "A" },
+  { id: 'CR', name: "Choco Rumba", car: "", price: 36, type: "A" },
+  { id: 'SB', name: "Sky Beeze", car: "", price: 36, type: "A" },
+  { id: 'DM', name: "Dark Moon", car: "", price: 40, type: "A" },
+  { id: 'MT', name: "Mai Tai", car: "", price: 40, type: "A" },
+  { id: 'MWS', name: "Mini Wrap de Salmon", car: "", price: 35, type: "C" },
+  { id: 'LT', name: "Langostinos Tempura", car: "", price: 36, type: "C" },
+  { id: 'BT', name: "Bocadillo Tropical", car: "", price: 30, type: "C" },
+  { id: 'SP', name: "Sunset Punch", car: "", price: 26, type: "B" },
   // Oferta especial
-  // { name: "Pack Poli", car: " 🚓", price: 50, type: "OFFER", includes: ["Bocadillo Tropical", "Sunset Punch"] }
+  // { id: 'PP', name: "Pack Poli", car: " 🚓", price: 50, type: "OFFER", includes: ["Bocadillo Tropical", "Sunset Punch"] }
 ];
 
 const cart = {};
@@ -357,8 +357,9 @@ function generateInvoice(event) {
     const subtotal = item.qty * item.price;
     total += subtotal;
 
+    // Store compact id to reduce encoded URL length; keep qty/price/subtotal
     invoiceData.items.push({
-      name: item.name,
+      id: item.id || item.name,
       qty: item.qty,
       price: item.price,
       subtotal: subtotal
@@ -382,8 +383,17 @@ function generateInvoice(event) {
     invoiceData.finalTotal = total;
   }
 
-  // Codificar datos en base64 para URL
-  const encodedData = btoa(encodeURIComponent(JSON.stringify(invoiceData)));
+  // Codificar datos en formato compacto (v2) para URL — muy corto y sin Base64
+  // Formato v2: campos separados por '|' y items separados por ',' con subcampos '~'
+  // order: dateMs | name | surname | phone | total | discount | dType | finalTotal | invoiceNumber | items
+  // item: id~qty~price~subtotal
+  const dateMs = Date.parse(invoiceData.date) || Date.now();
+  const dType = invoiceData.discountType === 'employee' ? 'e' : (invoiceData.discountType === 'custom' ? 'c' : 'n');
+  const itemsStr = invoiceData.items.map(it => `${it.id}~${it.qty}~${it.price}~${it.subtotal}`).join(',');
+  const customPercent = invoiceData.customDiscountPercent || 0;
+  const customReason = invoiceData.customDiscountReason || '';
+  const compact = [dateMs, invoiceData.name || '', invoiceData.surname || '', invoiceData.phone || '', invoiceData.total || 0, invoiceData.discount || 0, dType, invoiceData.finalTotal || 0, invoiceData.invoiceNumber || '', customPercent, customReason, itemsStr].join('|');
+  const encodedData = 'v2:' + encodeURIComponent(compact);
 
   // Generar URL de la factura
   const invoiceURL = `${window.location.origin}${window.location.pathname.replace('calculadora/index.html', 'facturas/index.html').replace('calculadora/', '../facturas/')}?data=${encodedData}`;
