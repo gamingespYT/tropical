@@ -231,7 +231,7 @@ function validatePassword() {
 }
 
 function cancelLogin() {
-  window.location.href = '../index.html';
+  window.location.href = '../main.html';
 }
 
 function logout() {
@@ -257,7 +257,7 @@ function logout() {
   document.body.appendChild(notification);
   
   setTimeout(() => {
-    window.location.href = '../index.html';
+    window.location.href = '../main.html';
   }, 1000);
 }
 
